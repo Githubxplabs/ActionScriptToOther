@@ -2,6 +2,7 @@ package how.as2js.codeDom
 {
 	import flash.utils.Dictionary;
 	
+	import how.as2js.Config;
 	import how.as2js.codeDom.temp.TempData;
 
 	public class CodeEgret extends CodeClass
@@ -31,7 +32,8 @@ package how.as2js.codeDom
 		override protected function getBody(tabCount:int):String
 		{
 			return getTab(tabCount)+name+" = (function (_super) {\n"+getTab(tabCount+1)+"__extends("+name+", _super);\n"+getTab(tabCount+1)+
-				"var d = __define,c="+name+";p=c.prototype;\n"+toVariable(tabCount+1)+toFunction(tabCount+1)+toGetSetFunction(tabCount+1)+
+				"var d = __define,c="+name+";p=c.prototype;\n"+
+				toFunction(tabCount+1)+toVariable(tabCount+1)+toBindFunction(tabCount+1)+toGetSetFunction(tabCount+1)+
 				toStaticVariable(tabCount+1)+getTab(tabCount+1)+"return "+name+";\n"+
 				getTab(tabCount)+"})("+toParent()+");\n"+getTab(tabCount)+(packAge?packAge+(packAge.length?".":"")+
 				name+" = "+name+";\n":"")+getTab(tabCount)+"egret.registerClass("+name+",\""+packAge+(packAge.length?".":"")+name+"\");";
@@ -43,9 +45,18 @@ package how.as2js.codeDom
 			{
 				if(!variables[i].isStatic)
 				{
+					if(variables[i].value)
+					{
+						variables[i].value.owner = new CodeExecutable(0);
+						variables[i].value.owner.tempData = tempData;
+					}
 					var value:String = variables[i].value?variables[i].value.out(0):"null";
 					variableString += getTab(tabCount+1)+"this."+variables[i].key+" = "+value+";\n";	
 				}
+			}
+			if(Config.bind)
+			{
+				variableString += getTab(tabCount+1)+"this.binds();\n";
 			}
 			return getTab(tabCount)+"p[\".init\"] = "+"function ()"+getLeftBrace(tabCount)+
 				variableString+getTab(tabCount)+"};\n";
@@ -57,6 +68,11 @@ package how.as2js.codeDom
 			{
 				if(variables[i].isStatic)
 				{
+					if(variables[i].value)
+					{
+						variables[i].value.owner = new CodeExecutable(0);
+						variables[i].value.owner.tempData = tempData;
+					}
 					var value:String = variables[i].value?variables[i].value.out(0):"null";
 					variableString += getTab(tabCount)+name+"."+variables[i].key+" = "+value+";\n";	
 				}
@@ -68,11 +84,11 @@ package how.as2js.codeDom
 			var functionString:String = "";	
 			for (var i:int = 0; i < functions.length; i++) 
 			{
+				functions[i].executable.tempData = tempData;
+				functions[i].isCtor = functions[i].name==name;
+				var funName:String = functions[i].type == CodeFunction.TYPE_GET || functions[i].type == CodeFunction.TYPE_SET?"[\""+functions[i].name+"\"]":"."+functions[i].name;
 				if(!functions[i].IsStatic)
 				{
-					functions[i].executable.tempData = tempData;
-					functions[i].isCtor = functions[i].name==name;
-					var funName:String = functions[i].type == CodeFunction.TYPE_GET || functions[i].type == CodeFunction.TYPE_SET?"[\""+functions[i].name+"\"]":"."+functions[i].name;
 					if(functions[i].isCtor)
 					{
 						functions[i].insertString = toVariable(tabCount+1);
@@ -93,6 +109,23 @@ package how.as2js.codeDom
 				}
 			}
 			return functionString;
+		}
+		override protected function toBindFunction(tabCount:int):String
+		{
+			if(!Config.bind)
+			{
+				return "";
+			}
+			var bindString:String = "";	
+			for (var i:int = 0; i < functions.length; i++) 
+			{
+				var funName:String = functions[i].name;
+				if(functions[i].type == CodeFunction.TYPE_NORMAL && functions[i].name!=name)
+				{
+					bindString += getTab(tabCount+1)+"this."+funName+" = "+"this."+funName+".bind(this);\n";
+				}
+			}
+			return getTab(tabCount)+"p.binds = function()"+getLeftBrace(tabCount)+bindString+getTab(tabCount)+"},\n";
 		}
 		protected function toEgretPackage(tabCount:int):Array
 		{

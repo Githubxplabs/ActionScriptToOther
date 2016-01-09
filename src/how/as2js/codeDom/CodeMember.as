@@ -4,14 +4,15 @@ package how.as2js.codeDom
 	{
 		public static const TYPE_NULL:int = 0;//空
 		public static const TYPE_STRING:int = 1;//String
-		public static const TYPE_NUMBER:int = 3;//Number类型
-		public static const TYPE_OBJECT:int = 4;//对象类型
+		public static const TYPE_NUMBER:int = 2;//Number类型
+		public static const TYPE_OBJECT:int = 3;//对象类型
 		public var parent:CodeObject;//父成员
 		public var memberObject:CodeObject;//成员值，this[object]
 		public var memberString:String;//成员值，this["key"]
 		public var memberNumber:Number;//成员值，this[0]
 		public var type:int = TYPE_NULL;//成员类型
 		public var calc:int;//前后标识
+		public var memType:CodeObject;
 		public function CodeMember(name:String = null,member:CodeObject = null,num:Number = 0,parent:CodeObject = null)
 		{
 			if(name)
@@ -102,7 +103,14 @@ package how.as2js.codeDom
 			}
 			if(parent)
 			{
-				return parent.out(tabCount)+"."+mem;	
+				if(this.type == TYPE_STRING)
+				{
+					return parent.out(tabCount)+"."+mem;	
+				}
+				else
+				{
+					return parent.out(tabCount)+"["+mem+"]";
+				}
 			}
 			else
 			{

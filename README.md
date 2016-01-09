@@ -1,8 +1,10 @@
 ###简要说明
 
-可以把ActionScript3.0代码转换成JavaScript代码，成功规避了JavaScript的this问题
+可以把ActionScript3.0代码转换成JavaScript代码。
 
-注释中可以通过@modol直接设置模式
+配合ActionScriptForUnity框架，可以直接用as3开发egret、cocos和unity游戏。
+
+此库是as3写的，开发者可以用Adobe AIR技术迅速开发出代码转换程序。也可以利用本人的行为IDE来转换代码。
 
 转换前：https://github.com/qibu111/ActionScriptToOther/blob/master/Demo.as 
 
@@ -12,19 +14,25 @@
 
 转换后：https://github.com/qibu111/ActionScriptToOther/blob/master/Demo(cocos).js
 
-提供行为IDE来验证实际效果，下载地址：http://pan.baidu.com/s/1kUqSR1l 密码：fe8z
+提供行为IDE来验证实际效果，下载地址：http://pan.baidu.com/s/1i3XvvYd
+
+下面的js脚本是可以直接在js的环境动态执行as3代码。原理很简单，就是把这个库直接转换成js的版本。
+
+这个js脚本是egret模式导出的，可以在egret引擎里面验证效果：https://github.com/qibu111/ActionScriptToOther/blob/master/ActionScriptInJavaScript.js
+
+asInjs库里面需要的Vector类等都需要用egret实现一个相关的类
 
 ----------------------------------------------------------------------------------------------------------------------
 
 ###暂不支持
 
-不支持强制转换
+定义十六进制数据（可用parseInt("0x000fff")暂时代替）
 
-不支持Vector类型
+强制转换
 
-不支持use namespace关键字
+use namespace关键字
 
-不支持对象作key
+对象作key
 
 默认模式和cocos2d-js模式不支持重写get/set，egret模式不支持单独只重写get/set中的某一个
 
@@ -33,6 +41,12 @@
 ----------------------------------------------------------------------------------------------------------------------
 
 ###注意事项
+
+if、else等后面必须带括号
+
+如果继承的是egret或者cocos的类，那么必须加this
+
+文件开头注释中加入@modol 1可设置导出模式，设置@bind true可绑定成员方法的执行上下文为this
 
 egret模式可以继承egret引擎中的类，其他模式也一样，模式切换在Config类中
 

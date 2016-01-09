@@ -22,10 +22,16 @@ catch(error:Error)
 }
 if(codeClass)
 {
+	new Runtime().registerClass(codeClass);//注册类，这样才能知道继承的对象的成员
 	trace(codeClass.out(1));//把Demo.as转换成egret模式的Demo.js
 }
 --------------------------------------------------------------------------------------------------------------------------------
 "Demo.as"：
+/**
+ * 江左梅郎
+ * @modol 1
+ * @bind true
+ */
 package how.demo
 {
 	import how.behaviour.Action;

@@ -54,7 +54,7 @@ package how.as2js.compiler
 			var strSource:String = buffer.replace("\r\n", "\r");
 			var strLines:Array = strSource.split('\r');
 			m_strBreviary = strLines.length > 0 ? strLines[0] : "";
-			if (m_strBreviary.length > BREVIARY_CHAR) m_strBreviary = m_strBreviary.substring(0, BREVIARY_CHAR);
+			if (m_strBreviary.length > BREVIARY_CHAR){ m_strBreviary = m_strBreviary.substring(0, BREVIARY_CHAR)};
 			for (var i:int = 0; i < strLines.length; i++) 
 			{
 				var strLine:String = strLines[i];
@@ -80,8 +80,9 @@ package how.as2js.compiler
 		}
 		protected function ReadChar():String
 		{
-			if (EndOfSource)
+			if (EndOfSource){
 				throw new Error("End of source reached.", m_iSourceLine);
+			}
 			var ch:String = m_listSourceLines[m_iSourceLine].charAt(m_iSourceChar++);
 			if (m_iSourceChar >= m_listSourceLines[m_iSourceLine].length) {
 				m_iSourceChar = 0;
@@ -95,19 +96,19 @@ package how.as2js.compiler
 			m_listTokens.push(new Token(type, lexeme, m_iSourceLine, m_iSourceChar));
 			lexState = LexState.None;
 		}
-		public function get modol():int
+		public function getValue(key:String):String
 		{
 			if(_commentList)
 			{
 				for (var i:int = 0; i < _commentList.length; i++) 
 				{
-					if(_commentList[i] == "@modol" && i+1 < _commentList.length)
+					if(_commentList[i] == "@"+key && i+1 < _commentList.length)
 					{
-						return parseInt(_commentList[i+1]);
+						return _commentList[i+1];
 					}
 				}
 			}
-			return 0;
+			return null;
 		}
 		protected function AddComment():void
 		{
@@ -130,8 +131,9 @@ package how.as2js.compiler
 		}
 		private function UndoChar():void
 		{
-			if (m_iSourceLine == 0 && m_iSourceChar == 0)
+			if (m_iSourceLine == 0 && m_iSourceChar == 0){
 				throw new Error("Cannot undo char beyond start of source.", m_iSourceLine);
+			}
 			--m_iSourceChar;
 			if (m_iSourceChar < 0) {
 				--m_iSourceLine;
@@ -140,12 +142,15 @@ package how.as2js.compiler
 		}
 		private function IsHexDigit(c:String):Boolean
 		{
-			if( Utils.IsDigit( c ) )
+			if( Utils.IsDigit( c ) ){
 				return true;
-			if( 'a' <= c && c <= 'f' )
+			}
+			if( 'a' <= c && c <= 'f' ){
 				return true;
-			if( 'A' <= c && c <= 'F' )
+			}
+			if( 'A' <= c && c <= 'F' ){
 				return true;
+			}
 			return false;
 		}
 		/**
@@ -249,7 +254,7 @@ package how.as2js.compiler
 							case '@':
 								lexState = LexState.SimpleStringStart;
 								break;
-							case '\"':
+							case "\"":
 								lexState = LexState.String;
 								break;
 							case '\'':
@@ -349,19 +354,23 @@ package how.as2js.compiler
 						}
 						break;
 					case LexState.LineComment:
-						if (ch == '\n')
+						if (ch == '\n'){
 							lexState = LexState.None;
+						}
 						break;
 					case LexState.BlockCommentStart:
-						if (ch == '*')
+						if (ch == '*'){
 							lexState = LexState.BlockCommentEnd;
+						}
 						AddComment();
 						break;
 					case LexState.BlockCommentEnd:
-						if (ch == '/')
+						if (ch == '/'){
 							lexState = LexState.None;
-						else
+						}
+						else{
 							lexState = LexState.BlockCommentStart;
+						}
 						AddComment();
 						break;
 					case LexState.AssignOrEqual:
@@ -445,7 +454,7 @@ package how.as2js.compiler
 						}
 						break;
 					case LexState.String:
-						if (ch == '\"') {
+						if (ch == "\"") {
 							AddToken(TokenType.String, m_strToken);
 						} else if (ch == '\\') {
 							lexState = LexState.StringEscape;
@@ -456,7 +465,7 @@ package how.as2js.compiler
 						}
 						break;
 					case LexState.StringEscape:
-						if (ch == '\\' || ch == '\"') {
+						if (ch == '\\' || ch == "\"") {
 							m_strToken += ch;
 							lexState = LexState.String;
 						} else if (ch == 't') {
@@ -501,7 +510,7 @@ package how.as2js.compiler
 						}
 						break;
 					case LexState.SimpleStringStart:
-						if (ch == '\"') {
+						if (ch == "\"") {
 							lexState = LexState.SimpleString;
 						} else if (ch == '\'') {
 							lexState = LexState.SingleSimpleString;
@@ -510,15 +519,15 @@ package how.as2js.compiler
 						}
 						break;
 					case LexState.SimpleString:
-						if (ch == '\"') {
+						if (ch == "\"") {
 							lexState = LexState.SimpleStringQuotationMarkOrOver;
 						} else {
 							m_strToken += ch;
 						}
 						break;
 					case LexState.SimpleStringQuotationMarkOrOver:
-						if (ch == '\"') {
-							m_strToken += '\"';
+						if (ch == "\"") {
+							m_strToken += "\"";
 							lexState = LexState.SimpleString;
 						} else {
 							AddToken(TokenType.String, m_strToken);
@@ -547,7 +556,7 @@ package how.as2js.compiler
 						} else {
 							m_strToken = "0";
 							lexState = LexState.Number;
-							AddToken(TokenType.Number, 0);
+//							AddToken(TokenType.Number, 0);
 							UndoChar();
 						}
 						break;
@@ -570,8 +579,9 @@ package how.as2js.compiler
 						} 
 						else
 						{
-							if (Utils.IsNullOrEmpty(m_strToken))
+							if (Utils.IsNullOrEmpty(m_strToken)){
 								ThrowInvalidCharacterException(ch);
+							}
 							value = parseInt(m_strToken);
 							AddToken(TokenType.Number, value);
 							UndoChar();
@@ -584,8 +594,8 @@ package how.as2js.compiler
 							var tokenType:int;
 							switch (m_strToken)
 							{
-								case "modol":
-									break;
+//								case "modol":
+//									break;
 								case "package":
 									tokenType = TokenType.Package;
 									break;
@@ -733,7 +743,8 @@ package how.as2js.compiler
 				}
 			}
 			m_listTokens.push(new Token(TokenType.Finished, "", m_iSourceLine, m_iSourceChar));
-			Config.modol = modol;
+//			Config.modol = parseInt(getValue("modol"));
+//			Config.bind = getValue("bind") != null && getValue("bind") == "true";
 			return m_listTokens;
 		}
 	}

@@ -69,7 +69,7 @@ package how.as2js.compiler
 			ReadLeftBrace();
 			codeClass.imports = GetImports();//导入列表
 			codeClass.modifierType = GetModifierType();//修饰符
-			if(PeekToken().Type == TokenType.Function)//全局函数
+			if(PeekToken().type == TokenType.Function)//全局函数
 			{
 				
 			}
@@ -89,17 +89,17 @@ package how.as2js.compiler
 		private function GetImports():Vector.<String>
 		{
 			var imports:Vector.<String> = new Vector.<String>();
-			while(PeekToken().Type == TokenType.Import)//说明存在导入
+			while(PeekToken().type == TokenType.Import)//说明存在导入
 			{
 				ReadToken();//读取import关键字
 				var importItem:String = ReadIdentifier();
-				while(PeekToken().Type == TokenType.Period)
+				while(PeekToken().type == TokenType.Period)
 				{
 					ReadToken();
 					importItem += "."+ReadIdentifier();
 				}
 				imports.push(importItem);
-				if(PeekToken().Type == TokenType.SemiColon)//如果存在分号
+				if(PeekToken().type == TokenType.SemiColon)//如果存在分号
 				{
 					ReadToken();
 				}
@@ -109,10 +109,10 @@ package how.as2js.compiler
 		/// <summary> 读取包名 </summary>
 		private function GetPackageName():String
 		{
-			if(PeekToken().Type == TokenType.Identifier)//说明存在包名定义
+			if(PeekToken().type == TokenType.Identifier)//说明存在包名定义
 			{
 				var packageName:String = ReadIdentifier();
-				while(PeekToken().Type == TokenType.Period)
+				while(PeekToken().type == TokenType.Period)
 				{
 					ReadToken();
 					packageName += "."+ReadIdentifier();
@@ -125,12 +125,12 @@ package how.as2js.compiler
 		private function GetModifierType():int
 		{
 			var token:Token = ReadToken();
-			if(token.Type == TokenType.Public
-				||token.Type == TokenType.Protected
-				||token.Type == TokenType.Internal
-				||token.Type == TokenType.Private)
+			if(token.type == TokenType.Public
+				||token.type == TokenType.Protected
+				||token.type == TokenType.Internal
+				||token.type == TokenType.Private)
 			{
-				return token.Type;
+				return token.type;
 			}
 			else
 			{
@@ -142,7 +142,7 @@ package how.as2js.compiler
 		/// <summary> 读取final修饰符 </summary>
 		private function GetFinal():Boolean
 		{
-			if(PeekToken().Type == TokenType.Final)
+			if(PeekToken().type == TokenType.Final)
 			{
 				ReadToken();
 				return true;
@@ -153,7 +153,7 @@ package how.as2js.compiler
 		/// <summary> 读取dynamic修饰符 </summary>
 		private function GetDynamic():Boolean
 		{
-			if(PeekToken().Type == TokenType.Dynamic)
+			if(PeekToken().type == TokenType.Dynamic)
 			{
 				ReadToken();
 				return true;
@@ -164,7 +164,7 @@ package how.as2js.compiler
 		/// <summary> 读取继承 </summary>
 		private function GetExtend():String
 		{
-			if(PeekToken().Type == TokenType.Extends)
+			if(PeekToken().type == TokenType.Extends)
 			{
 				ReadToken();
 				return ReadIdentifier();
@@ -177,7 +177,7 @@ package how.as2js.compiler
 		{
 			var codeClass:CodeClass = thisCodeClass==null?new CodeClass():thisCodeClass;
 			ReadLeftBrace();
-			while (PeekToken().Type != TokenType.RightBrace)
+			while (PeekToken().type != TokenType.RightBrace)
 			{
 				var token:Token = ReadToken();
 				var modifierType:int = TokenType.Private;//属性描述符
@@ -185,83 +185,83 @@ package how.as2js.compiler
 				var isConst:Boolean = false;//是否常量
 				var isOverride:Boolean = false;
 				var type:CodeObject = null;//属性类型
-				if(token.Type == TokenType.Static)
+				if(token.type == TokenType.Static)
 				{
 					isStatic = true;
 					token = ReadToken();
 				}
-				if(token.Type == TokenType.Override)
+				if(token.type == TokenType.Override)
 				{
 					isOverride = true;
 					token = ReadToken();
 				}
-				if (token.Type == TokenType.Public||token.Type == TokenType.Private||token.Type == TokenType.Protected||token.Type == TokenType.Internal)
+				if (token.type == TokenType.Public||token.type == TokenType.Private||token.type == TokenType.Protected||token.type == TokenType.Internal)
 				{
-					modifierType = token.Type;
+					modifierType = token.type;
 					token = ReadToken();
 				}
-				if(token.Type == TokenType.Override)
+				if(token.type == TokenType.Override)
 				{
 					isOverride = true;
 					token = ReadToken();
 				}
-				if(token.Type == TokenType.Static)
+				if(token.type == TokenType.Static)
 				{
 					isStatic = true;
 					token = ReadToken();
 				}
-				if(token.Type == TokenType.Var)
+				if(token.type == TokenType.Var)
 				{
 					token = ReadToken();
 				}
-				if(token.Type == TokenType.Const)
+				if(token.type == TokenType.Const)
 				{
 					isConst = true;
 					token = ReadToken();
 				}
-				if(token.Type == TokenType.Identifier) 
+				if(token.type == TokenType.Identifier) 
 				{
 					var next:Token = ReadToken();
-					if(next.Type == TokenType.Colon)
+					if(next.type == TokenType.Colon)
 					{
 						type = GetOneObject();
 						next = ReadToken();
 					}
-					if(next.Type == TokenType.Assign) 
+					if(next.type == TokenType.Assign) 
 					{
-						if(next.Type == TokenType.New)//实例化
+						if(next.type == TokenType.New)//实例化
 						{
-							codeClass.variables.push(new CodeVariable(token.Lexeme,GetNew(),modifierType,isStatic,isConst,isOverride,type));
+							codeClass.variables.push(new CodeVariable(token.lexeme,GetNew(),modifierType,isStatic,isConst,isOverride,type));
 						}
-						else if(token.Lexeme is int)
+						else if(token.lexeme is int)
 						{
-							codeClass.variables.push(new CodeVariable(parseInt(token.Lexeme.toString()), GetObject(),modifierType,isStatic,isConst,isOverride,type));
+							codeClass.variables.push(new CodeVariable(parseInt(token.lexeme.toString()), GetObject(),modifierType,isStatic,isConst,isOverride,type));
 						}
-						else if(token.Lexeme is Number)
+						else if(token.lexeme is Number)
 						{
-							codeClass.variables.push(new CodeVariable(parseFloat(token.Lexeme.toString()), GetObject(),modifierType,isStatic,isConst,isOverride,type));
+							codeClass.variables.push(new CodeVariable(parseFloat(token.lexeme.toString()), GetObject(),modifierType,isStatic,isConst,isOverride,type));
 						}
 						else
 						{
-							codeClass.variables.push(new CodeVariable(token.Lexeme, GetObject(),modifierType,isStatic,isConst,isOverride,type));
+							codeClass.variables.push(new CodeVariable(token.lexeme, GetObject(),modifierType,isStatic,isConst,isOverride,type));
 						}
 						var peek:Token = PeekToken();
-						if(peek.Type == TokenType.Comma || peek.Type == TokenType.SemiColon)
+						if(peek.type == TokenType.Comma || peek.type == TokenType.SemiColon)
 						{
 							ReadToken();
 						}
 					}
 					else//默认不赋值就是空
 					{
-						codeClass.variables.push(new CodeVariable(token.Lexeme,null,modifierType,isStatic,isConst,isOverride,type));
+						codeClass.variables.push(new CodeVariable(token.lexeme,null,modifierType,isStatic,isConst,isOverride,type));
 						peek = PeekToken();
-						if(peek.Type == TokenType.Comma || peek.Type == TokenType.SemiColon)
+						if(peek.type == TokenType.Comma || peek.type == TokenType.SemiColon)
 						{
 							ReadToken();
 						}
 					}
 				} 
-				else if(token.Type == TokenType.Function)
+				else if(token.type == TokenType.Function)
 				{
 					UndoToken();
 					codeClass.functions.push(ParseFunctionDeclaration(isStatic));
@@ -294,27 +294,37 @@ package how.as2js.compiler
 			var not:Boolean = false;
 			var negative:Boolean = false;
 			var calc:int = CALC.NONE;
-			if (token.Type == TokenType.Not) {
+			if (token.type == TokenType.Not) {
 				not = true;
 				token = ReadToken();
-			} else if (token.Type == TokenType.Minus) {
+			} else if (token.type == TokenType.Minus) {
 				negative = true;
 				token = ReadToken();
-			} else if (token.Type == TokenType.Increment) {
+			} else if (token.type == TokenType.Increment) {
 				calc = CALC.PRE_INCREMENT;
 				token = ReadToken();
-			} else if (token.Type == TokenType.Decrement) {
+			} else if (token.type == TokenType.Decrement) {
 				calc = CALC.PRE_DECREMENT;
 				token = ReadToken();
 			}
-			switch (token.Type)
+			switch (token.type)
 			{
 				case TokenType.Super:
 					ret = new CodeMember(null);
 					(ret as CodeMember).type = CodeMember.TYPE_NULL;
 					break;
 				case TokenType.Identifier:
-					ret = new CodeMember(token.Lexeme.toString());
+					if(token.lexeme == "Vector")
+					{
+						if(PeekToken().type == TokenType.Period)
+						{
+							ReadToken();//.
+							ReadToken();//>
+							ReadToken();//type
+							ReadToken();//>
+						}
+					}
+					ret = new CodeMember(token.lexeme.toString());
 					break;
 				case TokenType.Function:
 					UndoToken();
@@ -336,15 +346,16 @@ package how.as2js.compiler
 				case TokenType.Boolean:
 				case TokenType.Number:
 				case TokenType.String:
-					ret = new CodeScriptObject(token.Lexeme);
+					ret = new CodeScriptObject(token.lexeme);
 					break;
 				case TokenType.New:
 					ret = GetNew();
 					break;
 				default:
 					throw new ParseError(token,"Object起始关键字错误 ");
+					break;
 			}
-			ret.stackInfo = new StackInfo(m_strBreviary, token.SourceLine);
+			ret.stackInfo = new StackInfo(m_strBreviary, token.sourceLine);
 			ret = GetVariable(ret);
 			ret.not = not;
 			ret = GetTernary(ret);
@@ -354,9 +365,9 @@ package how.as2js.compiler
 					(ret as CodeMember).calc = calc;
 				} else {
 					var peek:Token = ReadToken();
-					if (peek.Type == TokenType.Increment) {
+					if (peek.type == TokenType.Increment) {
 						calc = CALC.POST_INCREMENT;
-					} else if (peek.Type == TokenType.Decrement) {
+					} else if (peek.type == TokenType.Decrement) {
 						calc = CALC.POST_DECREMENT;
 					} else {
 						UndoToken();
@@ -373,16 +384,16 @@ package how.as2js.compiler
 		//返回三元运算符
 		private function GetTernary(parent:CodeObject):CodeObject
 		{
-			if (PeekToken().Type == TokenType.QuestionMark)
+			if (PeekToken().type == TokenType.QuestionMark)
 			{
 				var ret:CodeTernary = new CodeTernary();
 				ret.allow = parent;
 				ReadToken();
-				ret.True = GetObject();
-				UndoToken();
-				UndoToken();
+				ret.True = GetObject(false);
+				//				UndoToken();
+				//				UndoToken();
 				ReadColon();
-				ret.False = GetObject();
+				ret.False = GetObject(false);
 				return ret;
 			}
 			return parent;
@@ -393,24 +404,27 @@ package how.as2js.compiler
 			var ret:CodeObject = parent;
 			for ( ; ; ) {
 				var m:Token = ReadToken();
-				if (m.Type == TokenType.Period) {
+				if (m.type == TokenType.Period) {
 					var identifier:String = ReadIdentifier();
 					ret = new CodeMember(identifier,null,0, ret);
-				} else if (m.Type == TokenType.LeftBracket) {
+				} else if (m.type == TokenType.LeftBracket) {
 					var member:CodeObject = GetObject();
 					ReadRightBracket();
 					if (member is CodeScriptObject) {
 						var obj:Object = (member as CodeScriptObject).object;
-						if (obj is Number)
+						if (obj is Number){
 							ret = new CodeMember(null,null,parseFloat(obj.toString()), ret);
-						else if (obj is String)
+						}
+						else if (obj is String){
 							ret = new CodeMember(obj.toString(),null,0, ret);
-						else
-						throw new ParseError(m,"获取变量只能是 number或string");
+						}
+						else{
+							throw new ParseError(m,"获取变量只能是 number或string");
+						}
 					} else {
 						ret = new CodeMember(null,member,0, ret);
 					}
-				} else if (m.Type == TokenType.LeftPar) {
+				} else if (m.type == TokenType.LeftPar) {
 					UndoToken();
 					ret = GetFunction(ret);
 				} else {
@@ -427,16 +441,22 @@ package how.as2js.compiler
 			ReadLeftParenthesis();
 			var pars:Vector.<CodeObject> = new Vector.<CodeObject>();
 			var token:Token = PeekToken();
-			while (token.Type != TokenType.RightPar)
+			while (token.type != TokenType.RightPar)
 			{
 				pars.push(GetObject());
 				token = PeekToken();
-				if (token.Type == TokenType.Comma)
+				if (token.type == TokenType.Comma)
+				{
 					ReadComma();
-				else if (token.Type == TokenType.RightPar)
+				}
+				else if (token.type == TokenType.RightPar)
+				{
 					break;
+				}
 				else
+				{
 					throw new ParseError(token,"Comma ',' or right parenthesis ')' expected in function declararion.");
+				}
 			}
 			ReadRightParenthesis();
 			ret.member = member;
@@ -449,18 +469,22 @@ package how.as2js.compiler
 			ReadLeftBracket();
 			var token:Token = PeekToken();
 			var ret:CodeArray = new CodeArray();
-			while (token.Type != TokenType.RightBracket)
+			while (token.type != TokenType.RightBracket)
 			{
-				if (PeekToken().Type == TokenType.RightBracket)
+				if (PeekToken().type == TokenType.RightBracket){
 					break;
+				}
 				ret.elements.push(GetObject());
 				token = PeekToken();
-				if (token.Type == TokenType.Comma) {
+				if (token.type == TokenType.Comma) {
 					ReadComma();
-				} else if (token.Type == TokenType.RightBracket) {
+				} else if (token.type == TokenType.RightBracket) {
 					break;
-				} else
+				} 
+				else
+				{
 					throw new ParseError(token,"Comma ',' or right parenthesis ']' expected in array object.");
+				}
 			}
 			ReadRightBracket();
 			return ret;
@@ -495,12 +519,12 @@ package how.as2js.compiler
 				if (member.calc == CALC.NONE)
 				{
 					var token:Token = ReadToken();
-					if(token.Type == TokenType.Colon && readColon)//如果后面跟着个冒号
+					if(token.type == TokenType.Colon && readColon)//如果后面跟着个冒号
 					{
-						ReadToken();
+						member.memType = GetOneObject();
 						token = ReadToken();
 					}
-					switch (token.Type)
+					switch (token.type)
 					{
 						case TokenType.Assign:
 						case TokenType.AssignPlus:
@@ -513,7 +537,8 @@ package how.as2js.compiler
 						case TokenType.AssignXOR:
 						case TokenType.AssignShr:
 						case TokenType.AssignShi:
-							return new CodeAssign(member, GetObject(), token.Type, m_strBreviary, token.SourceLine);
+							return new CodeAssign(member, GetObject(), token.type, m_strBreviary, token.sourceLine);
+							break;
 						default:
 							UndoToken();
 							break;
@@ -521,9 +546,9 @@ package how.as2js.compiler
 				}
 			}
 			var nextToken:Token = ReadToken();
-			if(nextToken.Type == TokenType.Is || nextToken.Type == TokenType.As)
+			if(nextToken.type == TokenType.Is || nextToken.type == TokenType.As)
 			{
-				ret = new CodeIsAs(ret,GetObject(),nextToken.Type);
+				ret = new CodeIsAs(ret,GetObject(),nextToken.type);
 			}
 			else
 			{
@@ -534,8 +559,8 @@ package how.as2js.compiler
 		//解析操作符
 		private function P_Operator(operateStack:Vector.<TempOperator>,objectStack:Vector.<CodeObject>):Boolean
 		{
-			var curr:TempOperator = TempOperator.getOper(PeekToken().Type);
-			if (curr == null) return false;
+			var curr:TempOperator = TempOperator.getOper(PeekToken().type);
+			if (curr == null) {return false;}
 			ReadToken();
 			while (operateStack.length > 0) 
 			{
@@ -558,23 +583,23 @@ package how.as2js.compiler
 		private function ParseFunctionDeclaration(isStatic:Boolean):CodeFunction
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.Function)
+			if (token.type != TokenType.Function)
 			{
 				throw new ParseError(token,"Function declaration must start with the 'function' keyword.");
 			}
 			var scriptFunctionType:int = CodeFunction.TYPE_NORMAL;
-			if(PeekToken().Type == TokenType.Get)
+			if(PeekToken().type == TokenType.Get)
 			{
 				token = ReadToken();
 				scriptFunctionType = CodeFunction.TYPE_GET;
 			}
-			if(PeekToken().Type == TokenType.Set)
+			if(PeekToken().type == TokenType.Set)
 			{
 				token = ReadToken();
 				scriptFunctionType = CodeFunction.TYPE_SET;
 			}
 			var strFunctionName:String;
-			if (PeekToken().Type != TokenType.LeftPar)//有可能是匿名函数
+			if (PeekToken().type != TokenType.LeftPar)//有可能是匿名函数
 			{
 				strFunctionName = ReadIdentifier();
 				strFunctionName = scriptFunctionType==CodeFunction.TYPE_GET?".get"+strFunctionName:strFunctionName;
@@ -585,23 +610,23 @@ package how.as2js.compiler
 			var listParameterTypes:Vector.<CodeMember> = new Vector.<CodeMember>();
 			var listValues:Vector.<CodeObject> = new Vector.<CodeObject>();
 			var bParams:Boolean = false;
-			if (PeekToken().Type != TokenType.RightPar) 
+			if (PeekToken().type != TokenType.RightPar) 
 			{
 				while (true) 
 				{
 					token = ReadToken();
-					if (token.Type == TokenType.Params) 
+					if (token.type == TokenType.Params) 
 					{
 						token = ReadToken();
 						bParams = true;
 					}
-					if (token.Type != TokenType.Identifier) 
+					if (token.type != TokenType.Identifier) 
 					{
-						throw new ParseError(token,"Unexpected token '" + token.Lexeme + "' in function declaration.");
+						throw new ParseError(token,"Unexpected token '" + token.lexeme + "' in function declaration.");
 					}
-					var strParameterName:String = token.Lexeme.toString();
+					var strParameterName:String = token.lexeme.toString();
 					token = PeekToken();
-					if (token.Type == TokenType.Colon)
+					if (token.type == TokenType.Colon)
 					{
 						ReadColon();
 						var param:CodeObject = GetObject();
@@ -621,11 +646,11 @@ package how.as2js.compiler
 					}
 					listParameters.push(strParameterName);
 					token = PeekToken();
-					if (token.Type == TokenType.Comma && !bParams)
+					if (token.type == TokenType.Comma && !bParams)
 					{
 						ReadComma();
 					}
-					else if (token.Type == TokenType.RightPar)
+					else if (token.type == TokenType.RightPar)
 					{
 						break;
 					}
@@ -637,9 +662,19 @@ package how.as2js.compiler
 			}
 			ReadRightParenthesis();
 			token = ReadToken();
-			if (token.Type == TokenType.Colon)//如果后面跟着冒号
+			if (token.type == TokenType.Colon)//如果后面跟着冒号
 			{
-				ReadToken();
+				token = ReadToken();
+				if(token.lexeme == "Vector")
+				{
+					if(PeekToken().type == TokenType.Period)
+					{
+						ReadToken();//.
+						ReadToken();//>
+						ReadToken();//type
+						ReadToken();//>
+					}
+				}
 			}
 			else
 			{
@@ -660,7 +695,7 @@ package how.as2js.compiler
 			var tokenType:int;
 			while (HasMoreTokens())
 			{
-				tokenType = ReadToken().Type;
+				tokenType = ReadToken().type;
 				if (tokenType == finished) 
 				{
 					break;
@@ -674,7 +709,7 @@ package how.as2js.compiler
 		private function ParseStatement(executable:CodeExecutable):void
 		{
 			var token:Token = ReadToken();
-			switch (token.Type)
+			switch (token.type)
 			{
 				case TokenType.Public:
 					throw new ParseError(token,"方法内的声明不支持public ");
@@ -724,10 +759,10 @@ package how.as2js.compiler
 					executable.addInstruction(new CodeInstruction(Opcode.SUPER,GetSuper(executable)));
 					break;
 				case TokenType.Break:
-					executable.addInstruction(new CodeInstruction(Opcode.BREAK, new CodeObject(m_strBreviary,token.SourceLine)));
+					executable.addInstruction(new CodeInstruction(Opcode.BREAK, new CodeObject(m_strBreviary,token.sourceLine)));
 					break;
 				case TokenType.Continue:
-					executable.addInstruction(new CodeInstruction(Opcode.CONTINUE, new CodeObject(m_strBreviary,token.SourceLine)));
+					executable.addInstruction(new CodeInstruction(Opcode.CONTINUE, new CodeObject(m_strBreviary,token.sourceLine)));
 					break;
 				case TokenType.Function:
 					ParseFunctionDeclaration(false);
@@ -737,8 +772,13 @@ package how.as2js.compiler
 				case TokenType.Delete:
 					executable.addInstruction(new CodeInstruction(Opcode.DELETE, new CodeDelete(GetObject())));
 					break;
+				case TokenType.LeftPar:
+					UndoToken();
+					executable.addInstruction(new CodeInstruction(Opcode.RESOLVE,GetObject()));
+					break;
 				default:
 					throw new ParseError(token,"不支持的语法 ");
+					break;
 			}
 		}
 		
@@ -747,30 +787,24 @@ package how.as2js.compiler
 		{
 			for (; ; ) 
 			{
-				executable.addInstruction(new CodeInstruction(Opcode.VAR,null,null,ReadIdentifier()));
+				var tokenIndex:int = m_iNextToken;
+				var identifier:String = ReadIdentifier();
+				var typeMem:CodeObject;
 				var peek:Token = PeekToken();
-				if (peek.Type == TokenType.Colon)
+				if (peek.type == TokenType.Colon)
 				{
 					ReadToken();
-					ReadToken();
+					typeMem = GetOneObject();
 					peek = PeekToken();
 				}
-				if (peek.Type == TokenType.Assign) 
+				executable.addInstruction(new CodeInstruction(Opcode.VAR,typeMem,null,identifier));
+				if (peek.type == TokenType.Assign) 
 				{
-					UndoToken();
-					UndoToken();
-					if(PeekToken().Type == TokenType.Colon)
-					{
-						UndoToken();
-					}
-					else
-					{
-						ReadToken();
-					}
+					m_iNextToken = tokenIndex;
 					ParseStatement(executable);
 				}
 				peek = ReadToken();
-				if (peek.Type != TokenType.Comma) 
+				if (peek.type != TokenType.Comma) 
 				{
 					UndoToken();
 					break;
@@ -785,9 +819,9 @@ package how.as2js.compiler
 			for (; ; )
 			{
 				var token:Token = ReadToken();
-				if (token.Type == TokenType.Else)
+				if (token.type == TokenType.Else)
 				{
-					if (PeekToken().Type == TokenType.If)
+					if (PeekToken().type == TokenType.If)
 					{
 						ReadToken();
 						ret.AddElseIf(ParseCondition(true,new CodeExecutable(CodeExecutable.Block_If,executable)));
@@ -804,7 +838,7 @@ package how.as2js.compiler
 					break;
 				}
 			}
-			if (PeekToken().Type == TokenType.Else)
+			if (PeekToken().type == TokenType.Else)
 			{
 				ReadToken();
 				ret.Else = ParseCondition(false,new CodeExecutable(CodeExecutable.Block_If,executable));
@@ -829,7 +863,7 @@ package how.as2js.compiler
 		//解析for语句
 		private function ParseFor(executable:CodeExecutable):void
 		{
-			if(PeekToken().Type == TokenType.Each)
+			if(PeekToken().type == TokenType.Each)
 			{
 				ReadToken();
 				ParseForeach(executable);
@@ -839,30 +873,30 @@ package how.as2js.compiler
 				ReadLeftParenthesis();
 				var partIndex:int = m_iNextToken;
 				var token:Token = ReadToken();
-				if (token.Type == TokenType.Identifier)
+				if (token.type == TokenType.Identifier)
 				{
 					var assign:Token = ReadToken();
-					if (assign.Type == TokenType.Assign)
+					if (assign.type == TokenType.Assign)
 					{
 						var obj:CodeObject = GetObject();
 						var comma:Token = ReadToken();
-						if (comma.Type == TokenType.Comma)
+						if (comma.type == TokenType.Comma)
 						{
-							ParseFor_Simple(executable,token.Lexeme.toString(), obj);
+							ParseFor_Simple(executable,token.lexeme.toString(), obj);
 							return;
 						}
 					}
 				}
-				if(token.Type == TokenType.Var)
+				if(token.type == TokenType.Var)
 				{
-					if(ReadToken().Type == TokenType.Identifier)
+					if(ReadToken().type == TokenType.Identifier)
 					{
-						if(PeekToken().Type == TokenType.Colon)
+						if(PeekToken().type == TokenType.Colon)
 						{
 							ReadColon();
 							ReadIdentifier();
 						}
-						if(ReadToken().Type == TokenType.In)
+						if(ReadToken().type == TokenType.In)
 						{
 							m_iNextToken = partIndex;
 							ParseForin(executable);
@@ -880,7 +914,7 @@ package how.as2js.compiler
 		{
 			var ret:CodeFor = new CodeFor();
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.SemiColon)
+			if (token.type != TokenType.SemiColon)
 			{
 				UndoToken();
 				var forBeginExecutable:CodeExecutable = new CodeExecutable(CodeExecutable.Block_ForBegin,executable);
@@ -888,14 +922,14 @@ package how.as2js.compiler
 				ret.beginExecutable = forBeginExecutable;
 			}
 			token = ReadToken();
-			if (token.Type != TokenType.SemiColon)
+			if (token.type != TokenType.SemiColon)
 			{
 				UndoToken();
 				ret.condition = GetObject();
 				ReadSemiColon();
 			}
 			token = ReadToken();
-			if (token.Type != TokenType.RightPar)
+			if (token.type != TokenType.RightPar)
 			{
 				UndoToken();
 				var forLoopExecutable:CodeExecutable = new CodeExecutable(CodeExecutable.Block_ForLoop,executable);
@@ -914,7 +948,7 @@ package how.as2js.compiler
 			ReadLeftParenthesis();
 			ReadVar();
 			ret.identifier = ReadIdentifier();
-			if(PeekToken().Type == TokenType.Colon)
+			if(PeekToken().type == TokenType.Colon)
 			{
 				ReadColon();
 				ReadIdentifier();
@@ -933,7 +967,7 @@ package how.as2js.compiler
 			var ret:CodeForin = new CodeForin();
 			ReadVar();
 			ret.identifier = ReadIdentifier();
-			if(PeekToken().Type == TokenType.Colon)
+			if(PeekToken().type == TokenType.Colon)
 			{
 				ReadColon();
 				ReadIdentifier();
@@ -953,7 +987,7 @@ package how.as2js.compiler
 			ret.identifier = Identifier;
 			ret.begin = obj;
 			ret.finished = GetObject();
-			if (PeekToken().Type == TokenType.Comma)
+			if (PeekToken().type == TokenType.Comma)
 			{
 				ReadToken();
 				ret.step = GetObject();
@@ -984,7 +1018,7 @@ package how.as2js.compiler
 			for (; ; )
 			{
 				var token:Token = ReadToken();
-				if (token.Type == TokenType.Case) {
+				if (token.type == TokenType.Case) {
 					
 					var vals:Vector.<CodeObject> = new Vector.<CodeObject>();
 					ParseCase(vals);
@@ -992,14 +1026,14 @@ package how.as2js.compiler
 					ParseStatementBlock(switchExecutable, false, TokenType.Break);
 					ret.AddCase(new TempCase(vals,switchExecutable));
 				} 
-				else if (token.Type == TokenType.Default) 
+				else if (token.type == TokenType.Default) 
 				{
 					ReadColon();
 					switchExecutable = new CodeExecutable(CodeExecutable.Block_Switch,executable);
 					ParseStatementBlock(switchExecutable, false, TokenType.Break);
 					ret.def = new TempCase(null,switchExecutable);
 				} 
-				else if (token.Type != TokenType.SemiColon)
+				else if (token.type != TokenType.SemiColon)
 				{
 					UndoToken();
 					break;
@@ -1011,18 +1045,18 @@ package how.as2js.compiler
 		//解析case
 		private function ParseCase(vals:Vector.<CodeObject>):void
 		{
-//			var val:Token = ReadToken();
-//			if (val.Type == TokenType.String || val.Type == TokenType.Number)
-//			{
-//				vals.push(val.Lexeme);
-//			}
-//			else
-//			{
-//				throw new ParseError(val,"case 语句 只支持 string和number类型");
-//			}
+			//			var val:Token = ReadToken();
+			//			if (val.Type == TokenType.String || val.Type == TokenType.Number)
+			//			{
+			//				vals.push(val.Lexeme);
+			//			}
+			//			else
+			//			{
+			//				throw new ParseError(val,"case 语句 只支持 string和number类型");
+			//			}
 			vals.push(GetObject(false));
 			ReadColon();
-			if (ReadToken().Type == TokenType.Case) 
+			if (ReadToken().type == TokenType.Case) 
 			{
 				ParseCase(vals);
 			} 
@@ -1037,27 +1071,23 @@ package how.as2js.compiler
 		{
 			var exec:CodeExecutable;
 			var ret:CodeTry = new CodeTry();
+			exec = new CodeExecutable(CodeExecutable.Block_Function,executable);
+			ParseStatementBlock(exec);
+			ret.tryExecutable = exec;
+			ReadCatch();
+			ReadLeftParenthesis();
+			ret.identifier = ReadIdentifier();
+			var peek:Token = PeekToken();
+			if (peek.type == TokenType.Colon)
 			{
-				exec = new CodeExecutable(CodeExecutable.Block_Function,executable);
-				ParseStatementBlock(exec);
-				ret.tryExecutable = exec;
+				ReadToken();
+				ReadToken();
+				peek = PeekToken();
 			}
-			{
-				ReadCatch();
-				ReadLeftParenthesis();
-				ret.identifier = ReadIdentifier();
-				var peek:Token = PeekToken();
-				if (peek.Type == TokenType.Colon)
-				{
-					ReadToken();
-					ReadToken();
-					peek = PeekToken();
-				}
-				ReadRightParenthesis();
-				exec = new CodeExecutable(CodeExecutable.Block_Function,executable);
-				ParseStatementBlock(exec);
-				ret.catchExecutable = exec;
-			}
+			ReadRightParenthesis();
+			exec = new CodeExecutable(CodeExecutable.Block_Function,executable);
+			ParseStatementBlock(exec);
+			ret.catchExecutable = exec;
 			executable.addInstruction(new CodeInstruction(Opcode.CALL_TRY, ret));
 		}		
 		//解析throw
@@ -1071,9 +1101,9 @@ package how.as2js.compiler
 		private function ParseReturn(executable:CodeExecutable):void
 		{
 			var peek:Token = PeekToken();
-			if (peek.Type == TokenType.RightBrace ||
-				peek.Type == TokenType.SemiColon ||
-				peek.Type == TokenType.Finished)
+			if (peek.type == TokenType.RightBrace ||
+				peek.type == TokenType.SemiColon ||
+				peek.type == TokenType.Finished)
 			{
 				executable.addInstruction(new CodeInstruction(Opcode.RET,null));
 			}
@@ -1100,7 +1130,7 @@ package how.as2js.compiler
 				}
 				else
 				{
-					throw new ParseError(peek,"变量后缀不支持此操作符  " + PeekToken().Lexeme);
+					throw new ParseError(peek,"变量后缀不支持此操作符  " + PeekToken().lexeme);
 				}
 			}
 			else if (member is CodeAssign)
@@ -1116,7 +1146,7 @@ package how.as2js.compiler
 		private function GetSuper(executable:CodeExecutable):CodeSuper
 		{
 			var ret:CodeSuper = new CodeSuper();
-			if(PeekToken().Type == TokenType.Period)
+			if(PeekToken().type == TokenType.Period)
 			{
 				ReadToken();
 				ret.superObject = GetObject();
@@ -1145,22 +1175,25 @@ package how.as2js.compiler
 		private function ReadLeftBrace():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.LeftBrace)
+			if (token.type != TokenType.LeftBrace){
 				throw new ParseError(token,"Left brace '{' expected.");
+			}
 		}
 		
 		/// <summary> 读取} </summary>
 		private function ReadRightBrace():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.RightBrace)
+			if (token.type != TokenType.RightBrace){
 				throw new ParseError(token,"Right brace '}' expected.");
+			}
 		}
 		/// <summary> 回滚Token </summary>
 		private function UndoToken():void
 		{
-			if (m_iNextToken <= 0)
+			if (m_iNextToken <= 0){
 				throw new ParseError(null,"No more tokens to undo.");
+			}
 			--m_iNextToken;
 		}
 		
@@ -1168,22 +1201,25 @@ package how.as2js.compiler
 		private function ReadClass():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.Class)
+			if (token.type != TokenType.Class){
 				throw new ParseError(token,"Class 'class' expected.");
+			}
 		}
 		//读取 包关键字
 		private function ReadPackage():String
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.Package)
+			if (token.type != TokenType.Package){
 				throw new ParseError(token,"Package 'package' expected.");
-			return token.Lexeme.toString();
+			}
+			return token.lexeme.toString();
 		}
 		/// <summary> 获得第一个Token </summary>
 		private function ReadToken():Token
 		{
-			if (!HasMoreTokens())
+			if (!HasMoreTokens()){
 				throw new ParseError(null,"Unexpected end of token stream.");
+			}
 			return m_listTokens[m_iNextToken++];
 		}
 		/// <summary> 是否还有更多需要解析的语法 </summary>
@@ -1194,87 +1230,99 @@ package how.as2js.compiler
 		/// <summary> 返回第一个Token </summary>
 		public function PeekToken():Token
 		{
-			if (!HasMoreTokens())
+			if (!HasMoreTokens()){
 				throw new ParseError(null,"Unexpected end of token stream.");
+			}
 			return m_listTokens[m_iNextToken];
 		}
 		/// <summary> 读取 未知字符 </summary>
 		private function ReadIdentifier():String
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.Identifier)
+			if (token.type != TokenType.Identifier){
 				throw new ParseError(token,"Identifier expected.");
-			return token.Lexeme.toString();
+			}
+			return token.lexeme.toString();
 		}
 		/// <summary> 读取( </summary>
 		private function ReadLeftParenthesis():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.LeftPar)
+			if (token.type != TokenType.LeftPar){
 				throw new ParseError(token,"Left parenthesis '(' expected.");
+			}
 		}
 		/// <summary> 读取) </summary>
 		private function ReadRightParenthesis():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.RightPar)
+			if (token.type != TokenType.RightPar){
 				throw new ParseError(token,"Right parenthesis ')' expected.");
+			}
 		}
 		/// <summary> 读取: </summary>
 		private function ReadColon():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.Colon)
+			if (token.type != TokenType.Colon){
 				throw new ParseError(token,"Colon ':' expected.");
+			}
 		}
 		/// <summary> 读取, </summary>
 		private function ReadComma():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.Comma)
+			if (token.type != TokenType.Comma){
 				throw new ParseError(token,"Comma ',' expected.");
+			}
 		}
 		/// <summary> 读取var </summary>
 		private function ReadVar():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.Var)
+			if (token.type != TokenType.Var){
 				throw new ParseError(token,"Var 'var' expected.");
+			}
 		}
 		/// <summary> 读取in </summary>
 		private function ReadIn():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.In)
+			if (token.type != TokenType.In){
 				throw new ParseError(token,"In 'in' expected.");
+			}
 		}
 		/// <summary> 读取; </summary>
 		private function ReadSemiColon():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.SemiColon)
+			if (token.type != TokenType.SemiColon){
 				throw new ParseError(token,"SemiColon ';' expected.");
+			}
 		}
 		/// <summary> 读取catch </summary>
 		private function ReadCatch():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.Catch)
+			if (token.type != TokenType.Catch){
 				throw new ParseError(token,"Catch 'catch' expected.");
+			}
 		}
 		/// <summary> 读取[ </summary>
 		private function ReadLeftBracket():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.LeftBracket)
+			if (token.type != TokenType.LeftBracket){
 				throw new ParseError(token,"Left bracket '[' expected for array indexing expression.");
+			}
 		}
 		/// <summary> 读取] </summary>
 		private function ReadRightBracket():void
 		{
 			var token:Token = ReadToken();
-			if (token.Type != TokenType.RightBracket)
+			if (token.type != TokenType.RightBracket){
 				throw new ParseError(token,"Right bracket ']' expected for array indexing expression.");
+			}
 		}
 	}
 }
