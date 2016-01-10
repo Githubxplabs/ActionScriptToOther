@@ -1,5 +1,7 @@
 package how.as2js
 {
+	import how.as2js.compiler.TokenType;
+
 	public class Utils
 	{
 		private static var es6to5:Class;
@@ -30,6 +32,27 @@ package how.as2js
 			}else{ 
 				return false; 
 			} 
+		}
+		
+		public static function getModifierTypeName(type:int):String
+		{
+			var modifierName:String = "public";
+			switch(type)
+			{
+				case TokenType.Public:
+					modifierName = "public";
+					break;
+				case TokenType.Private:
+					modifierName = "private";
+					break;
+				case TokenType.Protected:
+					modifierName = "protected";
+					break;
+				case TokenType.Internal:
+					modifierName = "internal";
+					break;
+			}
+			return modifierName;
 		}
 	}
 }

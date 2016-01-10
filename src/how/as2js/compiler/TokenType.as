@@ -17,6 +17,7 @@ package how.as2js.compiler
 			}
 			return null;
 		}
+		
 		//空类型（没有实际用途）		
 		public static var None:int = 0;		
 		//var		

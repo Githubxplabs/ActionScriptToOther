@@ -1,6 +1,8 @@
 package how.as2js.codeDom
 {
 	import flash.utils.Dictionary;
+	
+	import how.as2js.Utils;
 
 	public class CodeFunction extends CodeObject
 	{
@@ -17,7 +19,9 @@ package how.as2js.codeDom
 		private var params:Boolean;                       //参数个数
 		public var name:String;
 		public var isCtor:Boolean;//是否是构造函数
-		public function CodeFunction(strName:String,listParameters:Vector.<String>,listParameterTypes:Vector.<CodeMember>,listValues:Vector.<CodeObject>,executable:CodeExecutable,bParams:Boolean,IsStatic:Boolean,type:int)
+		public var returnType:CodeMember;//返回类选
+		public var modifierType:int;//修饰符
+		public function CodeFunction(strName:String,listParameters:Vector.<String>,listParameterTypes:Vector.<CodeMember>,listValues:Vector.<CodeObject>,executable:CodeExecutable,bParams:Boolean,IsStatic:Boolean,type:int,returnType:CodeMember, modifierType:int)
 		{
 			this.name = strName;
 			this.type = type;
@@ -28,7 +32,48 @@ package how.as2js.codeDom
 			this.executable = executable;
 			this.parameterCount = listParameters.length;
 			this.params = bParams;
+			this.returnType = returnType;
+			this.modifierType = modifierType;
 		}
+		
+		override public function out(tabCount:int):String
+		{
+			var functionString:String = "";
+			if(owner)
+			{
+				executable.tempData = owner.tempData;	
+			}
+			executable.tempData.tempData = new Dictionary();
+			
+			var tempParamsString:String = "";
+			for (var j:int = 0; j < listParameters.length; j++) 
+			{
+				tempParamsString += listParameters[j];
+				tempParamsString += ":";
+				tempParamsString += listParameterTypes[j].memberString;
+				if (listValues[j] != null)
+				{
+					tempParamsString += " = " + listValues[j].out(0);
+				}
+				if (j != listParameters.length - 1)
+				{
+					tempParamsString += ", ";
+				}
+			}
+			
+			functionString += getTab(tabCount) + 
+				Utils.getModifierTypeName(modifierType) +
+				(IsStatic ? "static " : "") + " function " +
+				name + " (" +tempParamsString + ")" +
+				(!returnType ? "" : (":" + returnType.memberString)) + "\n" +
+				getTab(tabCount) + "{\n" +
+				executable.out(tabCount + 1) +
+				getTab(tabCount) + "}\n\n";
+			
+			return functionString;
+		}
+		
+		
 		override public function outJS(tabCount:int):String
 		{
 			if(owner)

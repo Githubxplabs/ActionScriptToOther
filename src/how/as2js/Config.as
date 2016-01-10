@@ -4,7 +4,7 @@ package how.as2js
 	{
 		/**
 		 * 暂时只支持0
-		 * 0:how,1:egret,2:cocos2d-js,3:babel
+		 * 0:how,1:egret,2:cocos2d-js,3:babel,4:actionScript
 		 */
 		public static var modol:int = 0;
 		/**

@@ -2,6 +2,7 @@ package how.as2js.compiler
 {
 	import how.as2js.Config;
 	import how.as2js.codeDom.CALC;
+	import how.as2js.codeDom.CodeActionScript;
 	import how.as2js.codeDom.CodeArray;
 	import how.as2js.codeDom.CodeAssign;
 	import how.as2js.codeDom.CodeCallFunction;
@@ -64,6 +65,10 @@ package how.as2js.compiler
 			{
 				codeClass = new CodeCocos();
 			}
+			else if (Config.modol == 4)
+			{
+				codeClass = new CodeActionScript();
+			}
 			ReadPackage();
 			codeClass.packAge = GetPackageName();//包名
 			ReadLeftBrace();
@@ -122,7 +127,7 @@ package how.as2js.compiler
 			return "";
 		}
 		/// <summary> 读取修饰符 </summary>
-		private function GetModifierType():int
+		private function GetModifierType(isUndoToken:Boolean = true):int
 		{
 			var token:Token = ReadToken();
 			if(token.type == TokenType.Public
@@ -134,7 +139,8 @@ package how.as2js.compiler
 			}
 			else
 			{
-				UndoToken();
+				if (isUndoToken)
+					UndoToken();
 				return TokenType.Internal;
 			}
 		}
@@ -320,10 +326,15 @@ package how.as2js.compiler
 						{
 							ReadToken();//.
 							ReadToken();//>
-							ReadToken();//type
+							//ReadToken();//type
+							var param:CodeObject = GetObject();
 							ReadToken();//>
 						}
 					}
+					ret = new CodeMember(token.lexeme.toString());
+					(ret as CodeMember).memberSub = param as CodeMember;
+					break;
+				case TokenType.Void:
 					ret = new CodeMember(token.lexeme.toString());
 					break;
 				case TokenType.Function:
@@ -561,6 +572,16 @@ package how.as2js.compiler
 		{
 			var curr:TempOperator = TempOperator.getOper(PeekToken().type);
 			if (curr == null) {return false;}
+
+			UndoAndGoTokenCount(-4);
+			if (PeekToken().lexeme == "Vector")
+			{
+				UndoAndGoTokenCount(4);
+				return false;
+			}
+			
+			UndoAndGoTokenCount(4);
+			
 			ReadToken();
 			while (operateStack.length > 0) 
 			{
@@ -587,6 +608,20 @@ package how.as2js.compiler
 			{
 				throw new ParseError(token,"Function declaration must start with the 'function' keyword.");
 			}
+			
+			if (isStatic)
+			{
+				UndoAndGoTokenCount(-3);
+				var modifierType:int = GetModifierType(false);
+				UndoAndGoTokenCount(2);
+			}
+			else
+			{
+				UndoAndGoTokenCount(-2);
+				modifierType = GetModifierType(false);
+				UndoAndGoTokenCount(1);
+			}
+			
 			var scriptFunctionType:int = CodeFunction.TYPE_NORMAL;
 			if(PeekToken().type == TokenType.Get)
 			{
@@ -632,6 +667,7 @@ package how.as2js.compiler
 						var param:CodeObject = GetObject();
 						if(param is CodeMember)
 						{
+							listValues.push(null);
 							listParameterTypes.push(param);
 						}
 						else if(param is CodeAssign)
@@ -642,6 +678,7 @@ package how.as2js.compiler
 					}
 					else
 					{
+						listValues.push(null);
 						listParameterTypes.push(null);
 					}
 					listParameters.push(strParameterName);
@@ -662,19 +699,30 @@ package how.as2js.compiler
 			}
 			ReadRightParenthesis();
 			token = ReadToken();
+			var returnType:CodeMember;
 			if (token.type == TokenType.Colon)//如果后面跟着冒号
 			{
-				token = ReadToken();
-				if(token.lexeme == "Vector")
+				//返回类型
+				
+				//ReadColon();
+				
+				//token = ReadToken();
+				param = GetObject();
+				if (param is CodeMember)
 				{
-					if(PeekToken().type == TokenType.Period)
-					{
-						ReadToken();//.
-						ReadToken();//>
-						ReadToken();//type
-						ReadToken();//>
-					}
+					returnType = param as CodeMember;
 				}
+//				token = ReadToken();
+//				if(token.lexeme == "Vector")
+//				{
+//					if(PeekToken().type == TokenType.Period)
+//					{
+//						ReadToken();//.
+//						ReadToken();//>
+//						ReadToken();//type
+//						ReadToken();//>
+//					}
+//				}
 			}
 			else
 			{
@@ -682,7 +730,7 @@ package how.as2js.compiler
 			}
 			var executable:CodeExecutable = new CodeExecutable(CodeExecutable.Block_Function);
 			ParseStatementBlock(executable);
-			return new CodeFunction(strFunctionName,listParameters,listParameterTypes,listValues,executable,bParams,isStatic,scriptFunctionType);
+			return new CodeFunction(strFunctionName,listParameters,listParameterTypes,listValues,executable,bParams,isStatic,scriptFunctionType, returnType, modifierType);
 		}		
 		//解析区域代码内容( {} 之间的内容)
 		private function ParseStatementBlock(executable:CodeExecutable,readLeftBrace:Boolean = true,finished:int = 4):void
@@ -1195,6 +1243,18 @@ package how.as2js.compiler
 				throw new ParseError(null,"No more tokens to undo.");
 			}
 			--m_iNextToken;
+		}
+		
+		private function UndoAndGoTokenCount(count:int):void
+		{
+			if (m_iNextToken <= 0){
+				throw new ParseError(null,"No more tokens to undo.");
+			}
+			m_iNextToken += count;
+			
+			if (m_iNextToken <= 0){
+				throw new ParseError(null,"No more tokens to undo.");
+			}
 		}
 		
 		/// <summary> 读取class </summary>

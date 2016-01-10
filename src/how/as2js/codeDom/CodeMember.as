@@ -9,6 +9,7 @@ package how.as2js.codeDom
 		public var parent:CodeObject;//父成员
 		public var memberObject:CodeObject;//成员值，this[object]
 		public var memberString:String;//成员值，this["key"]
+		public var memberSub:CodeMember;//成员子类型，例如Vector.<XXX>，子类型即为XXX
 		public var memberNumber:Number;//成员值，this[0]
 		public var type:int = TYPE_NULL;//成员类型
 		public var calc:int;//前后标识
@@ -39,6 +40,7 @@ package how.as2js.codeDom
 			var thisString:String = "";
 			if(!parent)
 			{
+//				return memberString;
 				if(!owner.tempData.tempData.hasOwnProperty(memberString))
 				{
 					if(owner.tempData.thisTempData.hasOwnProperty(memberString))
@@ -51,7 +53,8 @@ package how.as2js.codeDom
 					}
 					else if(owner.tempData.importTempData.hasOwnProperty(memberString))
 					{
-						return owner.tempData.importTempData[memberString];
+						return memberString;
+//						return owner.tempData.importTempData[memberString];
 					}
 				}
 			}

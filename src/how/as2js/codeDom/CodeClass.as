@@ -159,10 +159,10 @@ package how.as2js.codeDom
 				}
 			}
 			var importString:String = "";
-			if(packAge)
-			{
-				imports.push(packAge+"."+name);	
-			}
+//			if(packAge)
+//			{
+//				imports.push(packAge+"."+name);	
+//			}
 			for (i = 0; i < imports.length; i++) 
 			{
 				var importItems:Array = imports[i].split('.');
