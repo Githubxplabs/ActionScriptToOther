@@ -36,6 +36,74 @@ package how.as2js.codeDom
 			this.modifierType = modifierType;
 		}
 		
+		override public function refactorName(source:String, target:String):void
+		{
+			
+			if (name == source)
+			{
+				name = target;
+			}
+			
+			var sizeListParameterTypes:int = listParameterTypes.length;
+			for (var i:int = 0; i < sizeListParameterTypes; i++) 
+			{
+				Utils.obfuscated(listParameterTypes[i], source, target);
+			}
+			
+			var sizeListValues:int = listValues.length;
+			for (var j:int = 0; j < sizeListValues; j++) 
+			{
+				Utils.obfuscated(listValues[j], source, target);
+			}
+			
+			var sizeListParameters:int = listParameters.length;
+			for (var k:int = 0; k < sizeListParameters; k++) 
+			{
+				if (listParameters[k] == source)
+				{
+					listParameters[k] = target;
+				}
+			}
+			
+			Utils.obfuscated(returnType, source, target);
+			Utils.obfuscated(executable, source, target);
+		}
+		
+		override public function refactorNameSelf():void
+		{
+			var target:String = Utils.getObfuscatedFixedKey(name);
+			if (target != null)
+			{
+				name = target;
+			}
+			
+			var sizeListParameterTypes:int = listParameterTypes.length;
+			for (var i:int = 0; i < sizeListParameterTypes; i++) 
+			{
+				Utils.obfuscatedSelf(listParameterTypes[i]);
+			}
+			
+			var sizeListValues:int = listValues.length;
+			for (var j:int = 0; j < sizeListValues; j++) 
+			{
+				Utils.obfuscatedSelf(listValues[j]);
+			}
+			
+			var sizeListParameters:int = listParameters.length;
+			for (var k:int = 0; k < sizeListParameters; k++) 
+			{
+				
+				target = Utils.getObfuscatedFixedKey(listParameters[k]);
+				if (target != null)
+				{
+					listParameters[k] = target;
+				}
+			}
+			
+			Utils.obfuscatedSelf(returnType);
+			Utils.obfuscatedSelf(executable);
+		}
+		
 		override public function out(tabCount:int):String
 		{
 			var functionString:String = "";
@@ -64,7 +132,9 @@ package how.as2js.codeDom
 			functionString += getTab(tabCount) + 
 				Utils.getModifierTypeName(modifierType) +
 				(IsStatic ? "static " : "") + " function " +
-				name + " (" +tempParamsString + ")" +
+				(type == CodeFunction.TYPE_GET ? "get " : "") +
+				(type == CodeFunction.TYPE_SET ? "set " : "") +
+				name + "(" +tempParamsString + ")" +
 				(!returnType ? "" : (":" + returnType.memberString)) + "\n" +
 				getTab(tabCount) + "{\n" +
 				executable.out(tabCount + 1) +
@@ -72,7 +142,6 @@ package how.as2js.codeDom
 			
 			return functionString;
 		}
-		
 		
 		override public function outJS(tabCount:int):String
 		{

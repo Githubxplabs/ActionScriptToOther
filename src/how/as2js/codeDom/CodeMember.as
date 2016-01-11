@@ -1,5 +1,7 @@
 package how.as2js.codeDom
 {
+	import how.as2js.Utils;
+
 	public class CodeMember extends CodeObject
 	{
 		public static const TYPE_NULL:int = 0;//空
@@ -119,6 +121,32 @@ package how.as2js.codeDom
 			{
 				return thisString+mem+"";
 			}
+		}
+		
+		override public function refactorName(source:String, target:String):void
+		{
+			if (memberString == source)
+			{
+				memberString = target;
+			}
+			Utils.obfuscated(memberObject, source, target);
+			Utils.obfuscated(memberSub, source, target);
+			Utils.obfuscated(memType, source, target);
+			Utils.obfuscated(parent, source, target);
+		}
+		
+		override public function refactorNameSelf():void
+		{
+			var target:String = Utils.getObfuscatedFixedKey(memberString);
+			if (target != null)
+			{
+				memberString = target;
+			}
+			
+			Utils.obfuscatedSelf(memberObject);
+			Utils.obfuscatedSelf(memberSub);
+			Utils.obfuscatedSelf(memType);
+			Utils.obfuscatedSelf(parent);
 		}
 	}
 }

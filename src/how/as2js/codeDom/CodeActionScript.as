@@ -1,11 +1,7 @@
 package how.as2js.codeDom
 {
-	import flash.utils.Dictionary;
-	
 	import how.as2js.Config;
 	import how.as2js.Utils;
-	import how.as2js.codeDom.temp.TempData;
-	import how.as2js.compiler.TokenType;
 
 	public final class CodeActionScript extends CodeEgret
 	{
@@ -23,18 +19,35 @@ package how.as2js.codeDom
 		
 		override protected function getBody(tabCount:int):String
 		{
+			var implementsStr:String = "";
+			if (impls != null && impls.length > 0)
+			{
+				implementsStr += " implements ";
+				for (var i:int = 0; i < impls.length; i++) 
+				{
+					implementsStr += impls[i];
+					if (i != impls.length - 1)
+					{
+						implementsStr += ", ";
+					}
+				}
+			}
+			
+			
 			var tempStr:String = toPackage(tabCount-1);
 			tempStr += "{" + Config.nextLine;
 			tempStr += toImport(tabCount);
 			tempStr += Config.nextLine;
-			tempStr += getTab(tabCount) + "public " + toFinal() + toDynamic() + "class " + name + " extends " + toParent() + Config.nextLine;
+			tempStr += getTab(tabCount) + "public " + toFinal() + toDynamic() + "class " + name + " extends " + toParent() + implementsStr + Config.nextLine;
 			tempStr += getTab(tabCount) + "{" + Config.nextLine;
 			tempStr += toVariable(tabCount);
 //			tempStr += getTab(++tabCount) + "public function " + name + "()" + Config.nextLine;
 //			tempStr += getTab(tabCount) + "{" + Config.nextLine;
-			tempStr += toFunction(++tabCount);
+			tempStr += toFunction(tabCount + 1);
+			tempStr += getTab(tabCount) + "}" + Config.nextLine;
+			tempStr += "}" + Config.nextLine;
 			
-			return tempStr + "" +"})\n"+toGetSetFunction(tabCount-1)+toStaticVariable(tabCount-1)+toStaticFunction(tabCount-1);
+			return tempStr;
 		}
 		
 		override protected function toFunction(tabCount:int):String
@@ -45,28 +58,7 @@ package how.as2js.codeDom
 				var codeFunction:CodeFunction = functions[i];
 				codeFunction.executable.tempData = tempData;
 				codeFunction.isCtor = codeFunction.name == name;
-				functionString += codeFunction.out(tabCount);				
-//				var funName:String = (functions[i].type == CodeFunction.TYPE_GET "get") || functions[i].type == CodeFunction.TYPE_SET?"[\""+functions[i].name+"\"]":"."+functions[i].name;
-//				if(!functions[i].IsStatic)
-//				{
-//					if(functions[i].isCtor)
-//					{
-//						functions[i].insertString = toVariable(tabCount+1);
-//						functionString += getTab(tabCount) + functions[i].out(tabCount)+";\n";
-//					}
-//					else
-//					{
-//						functionString += getTab(tabCount)+"p"+funName+" = "+functions[i].out(tabCount)+";\n";
-//					}
-//				}
-//				else
-//				{
-//					functions[i].executable.tempData = new TempData();
-//					functions[i].executable.tempData.staticTempData = new Dictionary();
-//					functions[i].executable.tempData.thisTempData = tempData.staticTempData;
-//					functions[i].executable.tempData.importTempData = tempData.importTempData;
-//					functionString += getTab(tabCount)+name+funName+" = "+functions[i].out(tabCount)+";\n";
-//				}
+				functionString += codeFunction.out(tabCount);	
 			}
 			return functionString;
 		}

@@ -3,6 +3,7 @@ package how.as2js.codeDom
 	import flash.utils.Dictionary;
 	
 	import how.as2js.Config;
+	import how.as2js.Utils;
 	import how.as2js.codeDom.temp.TempData;
 	import how.as2js.runtime.Runtime;
 	
@@ -12,6 +13,7 @@ package how.as2js.codeDom
 		public var modifierType:int;//修饰符
 		public var name:String;//类名
 		public var parent:String;//父类
+		public var impls:Vector.<String> = new Vector.<String>();
 		public var packAge:String;//包名
 		public var isDynamic:Boolean;//是否是动态类
 		public var isFinal:Boolean;//是否是终级类
@@ -20,6 +22,84 @@ package how.as2js.codeDom
 		public var functions:Vector.<CodeFunction> = new Vector.<CodeFunction>();							//父指令
 		public var tempData:TempData = new TempData();
 		protected var runTime:Runtime;
+		
+		public function startRefactor():void
+		{
+			//首先混淆类名
+			
+			
+			obfuscatedClassName(name);
+			obfuscatedVar(variables);
+		}
+		
+		public function startRefactorSelf():void
+		{
+			var sizeVariables:int = variables.length;
+			for (var i:int = 0; i < sizeVariables; i++) 
+			{
+				var codeVariable:CodeVariable = variables[i];
+				codeVariable.refactorNameSelf();
+			}
+			
+			var sizeFunctions:int = functions.length;
+			for (var j:int = 0; j < sizeFunctions; j++) 
+			{
+				var codeFunction:CodeFunction = functions[j];
+				codeFunction.refactorNameSelf();
+			}
+		}
+		
+		private function obfuscatedClassName(name:String):void
+		{
+			var source:String = name;
+			var target:String = Utils.getObfuscatedKey(source);
+			refactorName(source, target);
+		}
+		
+		private function obfuscatedVar(variables:Vector.<CodeVariable>):void
+		{
+			var size:int = variables.length;
+			for (var i:int = 0; i < size; i++) 
+			{
+				var variable:CodeVariable = variables[i];
+				
+				if (Utils.isObfuscatedName(variable.key.toString()))
+				{
+					continue;
+				}
+				
+				var source:String = variable.key.toString();
+				var target:String = Utils.getObfuscatedKey(source);
+				refactorName(source, target);
+			}
+		}
+		
+		override public function refactorName(source:String, target:String):void
+		{
+			if (name == source)
+			{
+				name = target;
+			}
+			
+			if (parent == source)
+			{
+				parent = target;
+			}
+			
+			var sizeVariables:int = variables.length;
+			for (var i:int = 0; i < sizeVariables; i++) 
+			{
+				variables[i].refactorName(source, target);
+			}
+			
+			var sizeFunctions:int = functions.length;
+			for (var j:int = 0; j < sizeFunctions; j++) 
+			{
+				functions[j].refactorName(source, target);
+			}
+		}
+		
+		
 		public function get classPath():String
 		{
 			if(packAge.length)

@@ -1,5 +1,6 @@
 package how.as2js.codeDom
 {
+	import how.as2js.Utils;
 	import how.as2js.compiler.TokenType;
 
 	public class CodeAssign extends CodeObject
@@ -14,6 +15,13 @@ package how.as2js.codeDom
 			this.assignType = assignType;
 			super(breviary, line)
 		}
+		
+		override public function refactorName(source:String, target:String):void
+		{
+			Utils.obfuscated(member, source, target);	
+			Utils.obfuscated(value, source, target);
+		}
+		
 		override public function out(tabCount:int):String
 		{
 			var type:String;
@@ -36,7 +44,15 @@ package how.as2js.codeDom
 			member.owner = owner;
 			value.owner = owner;
 			v = value.out(tabCount);
-			return member.out(tabCount) + " "+type+" " + v;
+			
+			var varType:String = "";
+			if (member.memType is CodeMember)
+			{
+				member.memType.owner = owner;
+				varType = ":" + member.memType.out(0);
+			}
+			
+			return member.out(tabCount) + varType + " " + type + " " + v;
 		}
 	}
 }

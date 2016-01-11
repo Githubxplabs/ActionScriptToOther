@@ -68,5 +68,17 @@ package how.as2js.codeDom
 				return "{\n";
 			}
 		}
+		
+		
+		public function refactorName(source:String, target:String):void
+		{
+			
+		}
+		
+		public function refactorNameSelf():void
+		{
+			
+		}
+		
 	}
 }

@@ -1,5 +1,6 @@
 package how.as2js.codeDom
 {
+	import how.as2js.Utils;
 	import how.as2js.runtime.Opcode;
 
 	public class CodeInstruction extends CodeObject
@@ -39,6 +40,12 @@ package how.as2js.codeDom
 			this._value = value;
 		}
 		
+		override public function refactorName(source:String, target:String):void
+		{
+			Utils.obfuscated(_operand0, source, target);
+		}
+		
+		
 		override public function out(tabCount:int):String
 		{
 			var result:String = "";
@@ -75,11 +82,12 @@ package how.as2js.codeDom
 			{
 				nextInstruction._operand0.owner = owner;
 				owner.currentIndex++;
-				return getTab(tabCount)+"var "+nextInstruction._operand0.out(0)+";\n";
+				return getTab(tabCount) + "var " + nextInstruction._operand0.out(0) + ";\n";
 			}
 			else
 			{
-				return getTab(tabCount)+"var "+name+" = null;\n";
+				_operand0.owner = owner;
+				return getTab(tabCount) + "var "+ name + ":" + _operand0.out(0) + ";\n";
 			}
 		}
 		protected function convertResolve(tabCount:int):String

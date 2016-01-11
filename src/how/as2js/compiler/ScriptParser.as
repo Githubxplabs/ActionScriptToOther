@@ -85,6 +85,7 @@ package how.as2js.compiler
 				ReadClass();
 				codeClass.name = ReadIdentifier();
 				codeClass.parent = GetExtend();
+				codeClass.impls = GetImplements();
 				GetMembers(codeClass);
 			}
 			ReadRightBrace();
@@ -174,6 +175,26 @@ package how.as2js.compiler
 			{
 				ReadToken();
 				return ReadIdentifier();
+			}
+			return null;
+		}
+		
+		/// <summary> 读取接口实现 </summary>
+		private function GetImplements():Vector.<String>
+		{
+			var list:Vector.<String> = new Vector.<String>();
+			if(PeekToken().type == TokenType.Implements)
+			{
+				ReadToken();
+				var identifier:String = ReadIdentifier();
+				list.push(identifier);
+				while (PeekToken().type == TokenType.Comma)
+				{
+					ReadComma();
+					identifier = ReadIdentifier();
+					list.push(identifier);
+				}
+				return list;
 			}
 			return null;
 		}
@@ -331,8 +352,21 @@ package how.as2js.compiler
 							ReadToken();//>
 						}
 					}
+					
 					ret = new CodeMember(token.lexeme.toString());
 					(ret as CodeMember).memberSub = param as CodeMember;
+					
+					UndoAndGoTokenCount(-2);
+					if (PeekToken().type == TokenType.Period)
+					{
+						UndoAndGoTokenCount(-1);
+						if (PeekToken().type == TokenType.Super)
+						{
+							(ret as CodeMember).parent = new CodeMember(PeekToken().lexeme.toString());
+						}
+						UndoAndGoTokenCount(1);
+					}	
+					UndoAndGoTokenCount(2);
 					break;
 				case TokenType.Void:
 					ret = new CodeMember(token.lexeme.toString());
@@ -637,8 +671,8 @@ package how.as2js.compiler
 			if (PeekToken().type != TokenType.LeftPar)//有可能是匿名函数
 			{
 				strFunctionName = ReadIdentifier();
-				strFunctionName = scriptFunctionType==CodeFunction.TYPE_GET?".get"+strFunctionName:strFunctionName;
-				strFunctionName = scriptFunctionType==CodeFunction.TYPE_SET?".set"+strFunctionName:strFunctionName;	
+//				strFunctionName = scriptFunctionType==CodeFunction.TYPE_GET?".get"+strFunctionName:strFunctionName;
+//				strFunctionName = scriptFunctionType==CodeFunction.TYPE_SET?".set"+strFunctionName:strFunctionName;	
 			}
 			ReadLeftParenthesis();
 			var listParameters:Vector.<String> = new Vector.<String>();
@@ -934,6 +968,12 @@ package how.as2js.compiler
 							return;
 						}
 					}
+					else if (assign.type == TokenType.In)
+					{
+						m_iNextToken = partIndex;
+						ParseForin(executable, false);
+						return;
+					}
 				}
 				if(token.type == TokenType.Var)
 				{
@@ -952,6 +992,7 @@ package how.as2js.compiler
 						}
 					}
 				}
+				
 				m_iNextToken = partIndex;
 				ParseFor_impl(executable);
 			}
@@ -1010,15 +1051,18 @@ package how.as2js.compiler
 			executable.addInstruction(new CodeInstruction(Opcode.CALL_FOREACH, ret));
 		}
 		//解析forin语句
-		private function ParseForin(executable:CodeExecutable):void
+		private function ParseForin(executable:CodeExecutable, isReadVar:Boolean = true):void
 		{
 			var ret:CodeForin = new CodeForin();
-			ReadVar();
-			ret.identifier = ReadIdentifier();
+			if (isReadVar)
+			{
+				ReadVar();
+			}
+			ret.identifier = GetObject();
 			if(PeekToken().type == TokenType.Colon)
 			{
 				ReadColon();
-				ReadIdentifier();
+				ret.identifierType = GetObject();
 			}
 			ReadIn();
 			ret.loopObject = GetObject();

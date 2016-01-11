@@ -1,5 +1,6 @@
 package how.as2js.codeDom
 {
+	import how.as2js.Utils;
 	import how.as2js.codeDom.temp.TempData;
 
 	public class CodeExecutable extends CodeObject
@@ -55,6 +56,33 @@ package how.as2js.codeDom
 		{
 			return instructions[index];
 		}
+		
+		override public function refactorName(source:String, target:String):void
+		{
+			for (currentIndex = 0; currentIndex < instructions.length; currentIndex++) 
+			{
+				Utils.obfuscated(instructions[currentIndex], source, target);
+			}
+		}
+		
+		override public function refactorNameSelf():void
+		{
+			for (currentIndex = 0; currentIndex < instructions.length; currentIndex++) 
+			{
+				Utils.obfuscatedSelf(instructions[currentIndex]);
+			}
+		}
+		
+		override public function out(tabCount:int):String
+		{
+			var result:String = "";
+			for (currentIndex = 0; currentIndex < instructions.length; currentIndex++) 
+			{
+				result += instructions[currentIndex].out(tabCount);
+			}
+			return result;
+		}
+		
 		override public function outJS(tabCount:int):String
 		{
 			var result:String = "";

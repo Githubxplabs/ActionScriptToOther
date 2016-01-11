@@ -626,6 +626,9 @@ package how.as2js.compiler
 								case "extends":
 									tokenType = TokenType.Extends;
 									break;
+								case "implements":
+									tokenType = TokenType.Implements;
+									break;
 								case "override":
 									tokenType = TokenType.Override;
 									break;

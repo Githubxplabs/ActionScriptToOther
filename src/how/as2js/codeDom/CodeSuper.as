@@ -3,6 +3,36 @@ package how.as2js.codeDom
 	public class CodeSuper extends CodeObject
 	{
 		public var superObject:CodeObject;
+		
+		
+		
+		
+		override public function out(tabCount:int):String
+		{
+			superObject.owner = owner;
+			var result:String = "";
+			if(superObject is CodeCallFunction)
+			{
+				var member:CodeMember = (superObject as CodeCallFunction).member as CodeMember;
+				if(member && !member.parent)//说明是构造
+				{
+					result = "super" + superObject.out(tabCount)+"";
+				}
+				else
+				{
+					result = superObject.out(tabCount) + "";
+				}
+				return result;
+			}
+			else
+			{
+//				insertString = ".call";
+//				result = "_super." + superObject.out(tabCount);
+				return result;	
+			}
+		}
+		
+		
 		override public function outJS(tabCount:int):String
 		{
 			superObject.owner = owner;

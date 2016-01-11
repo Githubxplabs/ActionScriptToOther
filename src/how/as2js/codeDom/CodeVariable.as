@@ -1,6 +1,7 @@
 package how.as2js.codeDom
 {
-	import how.as2js.codeDom.CodeObject;
+	import how.as2js.Utils;
+	
 	
 	/**
 	 * 成员变量
@@ -23,6 +24,29 @@ package how.as2js.codeDom
 			this.isConst = isConst;
 			this.isOverride = isOverride;
 			this.type = type;
+		}
+		
+		public function refactorName(source:String, target:String):void
+		{
+			if (key == source)
+			{
+				key = target;
+			}
+			
+			Utils.obfuscated(value, source, target);
+			Utils.obfuscated(type, source, target);
+		}
+		
+		public function refactorNameSelf():void
+		{
+			var target:String = Utils.getObfuscatedFixedKey(key.toString());
+			if (target != null)
+			{
+				key = target;
+			}
+			
+			Utils.obfuscatedSelf(value);
+			Utils.obfuscatedSelf(type);
 		}
 	}
 }

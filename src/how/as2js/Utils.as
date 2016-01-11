@@ -1,10 +1,18 @@
 package how.as2js
 {
+	import flash.utils.Dictionary;
+	
+	import how.as2js.codeDom.CodeObject;
 	import how.as2js.compiler.TokenType;
 
 	public class Utils
 	{
 		private static var es6to5:Class;
+
+		private static var _reNameDict:Dictionary = new Dictionary();
+		private static var _obfuscatedPrefix:String = "_010101";
+		private static var _index:int = 1000000;
+		
 		public static function IsLetter(str:String):Boolean
 		{			
 			if (new RegExp("[A-Za-z]").test(str)){ 
@@ -53,6 +61,57 @@ package how.as2js
 					break;
 			}
 			return modifierName;
+		}
+		
+		public static function obfuscated(codeObject:CodeObject, source:String, target:String):void
+		{
+			if (codeObject != null)
+			{
+				codeObject.refactorName(source, target);
+			}
+		}
+		
+		public static function obfuscatedSelf(codeObject:CodeObject):void
+		{
+			if (codeObject != null)
+			{
+				codeObject.refactorNameSelf();
+			}
+		}
+		
+		public static function getObfuscatedKey(name:String):String
+		{
+			var result:String = _reNameDict[name];
+			if (result != null)
+			{
+				return result;
+			}
+			
+			_index++;
+//			result = _obfuscatedPrefix + _index.toString(2); 
+			result = _obfuscatedPrefix + name; 
+			_reNameDict[name] = result;
+			
+			return result;
+		}
+		
+		public static function getObfuscatedFixedKey(name:String):String
+		{
+			var result:String = _reNameDict[name];
+			if (result != null)
+			{
+				return result;
+			}
+			return null;
+		}
+		
+		public static function isObfuscatedName(name:String):Boolean
+		{
+			if (name.slice(0, 7) == _obfuscatedPrefix)
+			{
+				return true;
+			}
+			return false;
 		}
 	}
 }

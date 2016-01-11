@@ -38,7 +38,7 @@ package how.as2js.compiler
 		public static var RightBracket:int = 8;		
 		//.		
 		public static var Period:int = 9;		
-		//:int = 0;		
+		//,;		
 		public static var Comma:int = 10;		
 		//:		
 		public static var Colon:int = 11;		
@@ -198,5 +198,7 @@ package how.as2js.compiler
 		public static var As:int = 88;		
 		//delete
 		public static var Delete:int = 89;		
+		//implements
+		public static var Implements:int = 90;		
 	}
 }
