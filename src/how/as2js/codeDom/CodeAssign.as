@@ -22,6 +22,12 @@ package how.as2js.codeDom
 			Utils.obfuscated(value, source, target);
 		}
 		
+		override public function refactorNameSelf():void
+		{
+			Utils.obfuscatedSelf(member);	
+			Utils.obfuscatedSelf(value);
+		}
+		
 		override public function out(tabCount:int):String
 		{
 			var type:String;

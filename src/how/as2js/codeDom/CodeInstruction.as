@@ -45,6 +45,10 @@ package how.as2js.codeDom
 			Utils.obfuscated(_operand0, source, target);
 		}
 		
+		override public function refactorNameSelf():void
+		{
+			Utils.obfuscatedSelf(_operand0);
+		}
 		
 		override public function out(tabCount:int):String
 		{
@@ -82,7 +86,12 @@ package how.as2js.codeDom
 			{
 				nextInstruction._operand0.owner = owner;
 				owner.currentIndex++;
-				return getTab(tabCount) + "var " + nextInstruction._operand0.out(0) + ";\n";
+				var codeAssign:CodeAssign = nextInstruction._operand0 as CodeAssign;
+//				if (codeAssign.member.memType == null)
+//				{
+//					return getTab(tabCount) + codeAssign.out(0) + ";\n";
+//				}
+				return getTab(tabCount) + "var " + codeAssign.out(0) + ";\n";
 			}
 			else
 			{

@@ -38,7 +38,7 @@ package how.as2js.codeDom
 			tempStr += "{" + Config.nextLine;
 			tempStr += toImport(tabCount);
 			tempStr += Config.nextLine;
-			tempStr += getTab(tabCount) + "public " + toFinal() + toDynamic() + "class " + name + " extends " + toParent() + implementsStr + Config.nextLine;
+			tempStr += getTab(tabCount) + "public " + toFinal() + toDynamic() + "class " + name + toParent() + implementsStr + Config.nextLine;
 			tempStr += getTab(tabCount) + "{" + Config.nextLine;
 			tempStr += toVariable(tabCount);
 //			tempStr += getTab(++tabCount) + "public function " + name + "()" + Config.nextLine;
@@ -88,7 +88,11 @@ package how.as2js.codeDom
 		
 		override public function toParent():String
 		{
-			return parent;
+			if (parent == null)
+			{
+				return "";
+			}
+			return " extends " + parent;
 		}
 		
 		private function toFinal():String

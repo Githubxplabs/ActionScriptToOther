@@ -5,7 +5,6 @@ package how.as2js.codeDom
 	public class CodeForin extends CodeObject
 	{
 		public var identifier:CodeObject;
-		public var identifierType:CodeObject;
 		public var loopObject:CodeObject;
 		public var executable:CodeExecutable;
 		public function CodeForin()
@@ -37,13 +36,19 @@ package how.as2js.codeDom
 			}
 			
 			var varName:String = "";
+			var typeName:String = "";
 			
-			if (identifierType != null)
+			if (identifier is CodeMember)
 			{
-				varName = "var ";
+				if ((identifier as CodeMember).memType != null)
+				{
+					varName = "var ";
+					typeName = " " + ((identifier as CodeMember).memType as CodeMember).memberString;
+				}
+				
 			}
 			
-			return getTab(tabCount)+"for (" + varName + identifier.out(0) + " in " + loopObject.out(0) + ")" + getLeftBrace(tabCount) +
+			return getTab(tabCount)+"for (" + varName + identifier.out(0) + typeName + " in " + loopObject.out(0) + ")" + getLeftBrace(tabCount) +
 				executable.out(tabCount+1) + getTab(tabCount) + "}";
 		}
 	}

@@ -199,6 +199,7 @@ package how.as2js.compiler
 		//delete
 		public static var Delete:int = 89;		
 		//implements
-		public static var Implements:int = 90;		
+		public static var Implements:int = 90;	
+		
 	}
 }

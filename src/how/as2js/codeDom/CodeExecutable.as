@@ -59,17 +59,17 @@ package how.as2js.codeDom
 		
 		override public function refactorName(source:String, target:String):void
 		{
-			for (currentIndex = 0; currentIndex < instructions.length; currentIndex++) 
+			for (var i:int = 0; i < instructions.length; i++) 
 			{
-				Utils.obfuscated(instructions[currentIndex], source, target);
+				Utils.obfuscated(instructions[i], source, target);
 			}
 		}
 		
 		override public function refactorNameSelf():void
 		{
-			for (currentIndex = 0; currentIndex < instructions.length; currentIndex++) 
+			for (var i:int = 0; i < instructions.length; i++) 
 			{
-				Utils.obfuscatedSelf(instructions[currentIndex]);
+				Utils.obfuscatedSelf(instructions[i]);
 			}
 		}
 		

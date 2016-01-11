@@ -1035,13 +1035,16 @@ package how.as2js.compiler
 		{
 			var ret:CodeForeach = new CodeForeach();
 			ReadLeftParenthesis();
-			ReadVar();
-			ret.identifier = ReadIdentifier();
-			if(PeekToken().type == TokenType.Colon)
+			if (PeekToken().type != TokenType.Identifier)
 			{
-				ReadColon();
-				ReadIdentifier();
+				ReadVar();
 			}
+			ret.identifier = GetObject();
+//			if(PeekToken().type == TokenType.Colon)
+//			{
+//				ReadColon();
+//				ReadIdentifier();
+//			}
 			ReadIn();
 			ret.loopObject = GetObject();
 			ReadRightParenthesis();
@@ -1059,11 +1062,11 @@ package how.as2js.compiler
 				ReadVar();
 			}
 			ret.identifier = GetObject();
-			if(PeekToken().type == TokenType.Colon)
-			{
-				ReadColon();
-				ret.identifierType = GetObject();
-			}
+//			if(PeekToken().type == TokenType.Colon)
+//			{
+//				ReadColon();
+//				ret.identifierType = GetObject();
+//			}
 			ReadIn();
 			ret.loopObject = GetObject();
 			ReadRightParenthesis();
