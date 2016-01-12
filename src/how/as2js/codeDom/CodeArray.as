@@ -3,6 +3,12 @@ package how.as2js.codeDom
 	public class CodeArray extends CodeObject
 	{
 		public var elements:Vector.<CodeObject> = new Vector.<CodeObject>();
+
+		public function CodeArray()
+		{
+			
+		}
+		
 		override public function out(tabCount:int):String
 		{
 			var result:String = "[";

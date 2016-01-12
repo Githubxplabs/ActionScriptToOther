@@ -23,6 +23,11 @@ package how.as2js.codeDom
 		public var tempData:TempData = new TempData();
 		protected var runTime:Runtime;
 		
+		public function CodeClass()
+		{
+			
+		}
+		
 		public function startRefactor():void
 		{
 			//首先混淆类名

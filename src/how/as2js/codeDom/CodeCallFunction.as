@@ -4,8 +4,14 @@ package how.as2js.codeDom
 
 	public class CodeCallFunction extends CodeObject
 	{
+		public var memberNamespace:CodeObject;
 		public var member:CodeObject;
 		public var parameters:Vector.<CodeObject>;
+		
+		public function CodeCallFunction()
+		{
+		}
+	
 		
 		override public function refactorName(source:String, target:String):void
 		{

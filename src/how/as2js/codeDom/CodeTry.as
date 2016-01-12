@@ -6,6 +6,12 @@ package how.as2js.codeDom
 		public var tryExecutable:CodeExecutable;//try指令执行
 		public var catchExecutable:CodeExecutable;//catch指令执行
 		public var identifier:String;//异常对象
+		
+		public function CodeTry()
+		{
+			
+		}
+		
 		override public function out(tabCount:int):String
 		{
 			tryExecutable.parent = owner;

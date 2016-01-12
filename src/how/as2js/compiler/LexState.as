@@ -68,5 +68,7 @@ package how.as2js.compiler
 		public static const HexNumber:int = 31;
 		//描述符
 		public static const Identifier:int = 32;
+		//命名空间
+		public static const Namespace:int = 33;
 	}
 }

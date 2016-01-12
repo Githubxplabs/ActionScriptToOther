@@ -7,6 +7,12 @@ package how.as2js.codeDom
 		public var If:TempCondition;
 		public var Else:TempCondition;
 		public var ElseIf:Vector.<TempCondition> = new Vector.<TempCondition>();
+		
+		public function CodeIf()
+		{
+			
+		}
+		
 		public function AddElseIf(con:TempCondition):void
 		{
 			ElseIf.push(con);

@@ -22,7 +22,7 @@ package how.as2js
 		/**
 		 * { 是否下一行显示
 		 */
-		public static var leftBraceNextLine:Boolean = false;
+		public static var leftBraceNextLine:Boolean = true;
 		/**
 		 * 是否绑定this
 		 */

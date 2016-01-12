@@ -1,6 +1,5 @@
 package how.as2js.compiler
 {
-	import how.as2js.Config;
 	import how.as2js.Utils;
 
 	/**
@@ -203,7 +202,8 @@ package how.as2js.compiler
 								AddToken(TokenType.Comma);
 								break;
 							case ':':
-								AddToken(TokenType.Colon);
+//								AddToken(TokenType.Colon);
+								lexState = LexState.Namespace;
 								break;
 							case ';':
 								AddToken(TokenType.SemiColon);
@@ -586,6 +586,17 @@ package how.as2js.compiler
 							AddToken(TokenType.Number, value);
 							UndoChar();
 						}
+						break;
+					case LexState.Namespace:
+							if (ch == ':') 
+							{
+								AddToken(TokenType.NamespaceColon, "::");
+							} 
+							else 
+							{
+								AddToken(TokenType.Colon, ":");
+								UndoChar();
+							}	
 						break;
 					case LexState.Identifier:
 						if (ch == '_' || ch == '$' || Utils.IsLetterOrDigit(ch)) {

@@ -200,6 +200,8 @@ package how.as2js.compiler
 		public static var Delete:int = 89;		
 		//implements
 		public static var Implements:int = 90;	
+		//::
+		public static var NamespaceColon:int = 91;
 		
 	}
 }

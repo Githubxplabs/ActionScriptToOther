@@ -21,7 +21,8 @@ package how.as2js.codeDom
 		public var isCtor:Boolean;//是否是构造函数
 		public var returnType:CodeMember;//返回类选
 		public var modifierType:int;//修饰符
-		public function CodeFunction(strName:String,listParameters:Vector.<String>,listParameterTypes:Vector.<CodeMember>,listValues:Vector.<CodeObject>,executable:CodeExecutable,bParams:Boolean,IsStatic:Boolean,type:int,returnType:CodeMember, modifierType:int)
+		public var isOverride:Boolean;//是否覆盖的方法
+		public function CodeFunction(strName:String,listParameters:Vector.<String>,listParameterTypes:Vector.<CodeMember>,listValues:Vector.<CodeObject>,executable:CodeExecutable,bParams:Boolean,IsStatic:Boolean,type:int,returnType:CodeMember, modifierType:int, isOverride:Boolean)
 		{
 			this.name = strName;
 			this.type = type;
@@ -34,6 +35,7 @@ package how.as2js.codeDom
 			this.params = bParams;
 			this.returnType = returnType;
 			this.modifierType = modifierType;
+			this.isOverride = isOverride;
 		}
 		
 		override public function refactorName(source:String, target:String):void
@@ -129,16 +131,32 @@ package how.as2js.codeDom
 				}
 			}
 			
-			functionString += getTab(tabCount) + 
-				Utils.getModifierTypeName(modifierType) +
-				(IsStatic ? "static " : "") + " function " +
-				(type == CodeFunction.TYPE_GET ? "get " : "") +
-				(type == CodeFunction.TYPE_SET ? "set " : "") +
-				name + "(" +tempParamsString + ")" +
-				(!returnType ? "" : (":" + returnType.memberString)) + "\n" +
-				getTab(tabCount) + "{\n" +
-				executable.out(tabCount + 1) +
-				getTab(tabCount) + "}\n\n";
+			if (name != null)
+			{
+				functionString += getTab(tabCount) + 
+					(isOverride ? "override " : "") + 
+					Utils.getModifierTypeName(modifierType) +
+					(IsStatic ? " static" : "") + " function " +
+					(type == CodeFunction.TYPE_GET ? "get " : "") +
+					(type == CodeFunction.TYPE_SET ? "set " : "") +
+					name + "(" +tempParamsString + ")" +
+					(!returnType ? "" : (":" + returnType.memberString)) + "\n" +
+					getTab(tabCount) + "{\n" +
+					executable.out(tabCount + 1) +
+					getTab(tabCount) + "}\n\n";
+			}
+			else
+			{
+				//闭包函数
+				functionString += "function " +
+					"(" +tempParamsString + ")" +
+					(!returnType ? "" : (":" + returnType.memberString)) + "\n" +
+					getTab(tabCount) + "{\n" +
+					executable.out(tabCount + 1) +
+					getTab(tabCount) + "}";
+			}
+			
+			
 			
 			return functionString;
 		}

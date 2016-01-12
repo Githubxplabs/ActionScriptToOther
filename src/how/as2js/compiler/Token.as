@@ -6,6 +6,11 @@ package how.as2js.compiler
 	{
 		private var _type:int;
 
+		public function set type(value:int):void
+		{
+			_type = value;
+		}
+
 		/**
 		 * 标记类型
 		 */

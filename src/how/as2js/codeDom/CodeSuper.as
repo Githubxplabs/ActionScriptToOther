@@ -4,7 +4,10 @@ package how.as2js.codeDom
 	{
 		public var superObject:CodeObject;
 		
-		
+		public function CodeSuper()
+		{
+			
+		}
 		
 		
 		override public function out(tabCount:int):String
@@ -27,7 +30,7 @@ package how.as2js.codeDom
 			else
 			{
 //				insertString = ".call";
-//				result = "_super." + superObject.out(tabCount);
+				result = superObject.out(tabCount);
 				return result;	
 			}
 		}

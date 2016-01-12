@@ -16,6 +16,7 @@ package how.as2js.codeDom
 		public var type:int = TYPE_NULL;//成员类型
 		public var calc:int;//前后标识
 		public var memType:CodeObject;
+		public var isStringProperties:Boolean;//是否为xxx[""]的形式
 		public function CodeMember(name:String = null,member:CodeObject = null,num:Number = 0,parent:CodeObject = null)
 		{
 			if(name)
@@ -43,22 +44,26 @@ package how.as2js.codeDom
 			if(!parent)
 			{
 //				return memberString;
-				if(!owner.tempData.tempData.hasOwnProperty(memberString))
-				{
-					if(owner.tempData.thisTempData.hasOwnProperty(memberString))
-					{
-						thisString = "this.";	
-					}
-					else if(owner.tempData.staticTempData.hasOwnProperty(memberString))
-					{
-						return owner.tempData.staticTempData[".this"];
-					}
-					else if(owner.tempData.importTempData.hasOwnProperty(memberString))
-					{
-						return memberString;
+//				if(!owner.tempData.tempData.hasOwnProperty(memberString))
+//				{
+//					if(owner.tempData.thisTempData.hasOwnProperty(memberString))
+//					{
+//						thisString = "this.";	
+//					}
+//					else if(owner.tempData.staticTempData.hasOwnProperty(memberString))
+//					{
+//						return owner.tempData.staticTempData[".this"];
+//					}
+//					else if(owner.tempData.importTempData.hasOwnProperty(memberString))
+//					{
+//						if (memberString == null)
+//						{
+//							return "";
+//						}
+//						return memberString;
 //						return owner.tempData.importTempData[memberString];
-					}
-				}
+//					}
+//				}
 			}
 			else
 			{
@@ -110,7 +115,11 @@ package how.as2js.codeDom
 			{
 				if(this.type == TYPE_STRING)
 				{
-					return parent.out(tabCount)+"."+mem;	
+					if (isStringProperties)
+					{
+						return parent.out(tabCount) + "[\"" + mem + "\"]";
+					}
+					return parent.out(tabCount) + "." + mem;	
 				}
 				else
 				{
