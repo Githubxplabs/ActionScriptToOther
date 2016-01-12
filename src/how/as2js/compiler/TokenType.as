@@ -202,6 +202,8 @@ package how.as2js.compiler
 		public static var Implements:int = 90;	
 		//::
 		public static var NamespaceColon:int = 91;
+		//RegExp  /<.*?>/g 正则表达式
+		public static var RegExp:int = 92;
 		
 	}
 }

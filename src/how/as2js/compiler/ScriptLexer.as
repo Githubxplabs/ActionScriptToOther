@@ -22,6 +22,7 @@ package how.as2js.compiler
 		private var m_iSourceChar:int;//当前解析字符
 		private var m_lexState:int;
 		private var ch:String;//当前的解析的字符
+		private var regExpCount:int;
 
 		public function get lexState():int
 		{
@@ -124,6 +125,7 @@ package how.as2js.compiler
 				commentStrToken = "";
 			}
 		}
+
 		private function ThrowInvalidCharacterException(ch:String):void
 		{
 			throw new Error("Unexpected character [" + ch + "]  Line:" + (m_iSourceLine + 1) + " Column:" + m_iSourceChar + " [" + m_listSourceLines[m_iSourceLine] + "]");
@@ -340,8 +342,40 @@ package how.as2js.compiler
 								AddToken(TokenType.AssignDivide, "/=");
 								break;
 							default:
-								AddToken(TokenType.Divide, "/");
-								UndoChar();
+								//需要检测正则表达式的情况
+								var regExpCh:String = "/" + ch;
+								var isRegExp:Boolean = false;
+								for (var i:int = m_iSourceChar; i < m_listSourceLines[m_iSourceLine].length; i++) 
+								{
+									var tempCh:String = m_listSourceLines[m_iSourceLine].charAt(i);
+									regExpCh += tempCh;
+									if (tempCh == "/" && m_listSourceLines[m_iSourceLine].charAt(i - 1) != "\\")
+									{
+										isRegExp = true;
+										
+										if (i + 1 < m_listSourceLines[m_iSourceLine].length)
+										{
+											tempCh = m_listSourceLines[m_iSourceLine].charAt(i + 1);
+											if (tempCh == "g" || tempCh == "i" || tempCh == "s" || tempCh == "m" || tempCh == "x")
+											{
+												regExpCh += tempCh;
+											}
+										}
+										
+										i = m_listSourceLines[m_iSourceLine].length;
+									}
+								}
+								
+								if (isRegExp)
+								{
+									AddToken(TokenType.RegExp, regExpCh);
+								}
+								else
+								{
+									AddToken(TokenType.Divide, "/");
+									UndoChar();
+								}
+								
 								break;
 						}
 						break;
