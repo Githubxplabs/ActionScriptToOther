@@ -23,6 +23,7 @@ package how.as2js.compiler
 	import how.as2js.codeDom.CodeNew;
 	import how.as2js.codeDom.CodeObject;
 	import how.as2js.codeDom.CodeOperator;
+	import how.as2js.codeDom.CodeRegExp;
 	import how.as2js.codeDom.CodeScriptObject;
 	import how.as2js.codeDom.CodeSuper;
 	import how.as2js.codeDom.CodeSwitch;
@@ -102,7 +103,14 @@ package how.as2js.compiler
 				while(PeekToken().type == TokenType.Period)
 				{
 					ReadToken();
-					importItem += "."+ReadIdentifier();
+					if (PeekToken().type == TokenType.Multiply)
+					{
+						importItem += "." + ReadToken().lexeme.toString();
+					}
+					else
+					{
+						importItem += "." + ReadIdentifier();
+					}
 				}
 				imports.push(importItem);
 				if(PeekToken().type == TokenType.SemiColon)//如果存在分号
@@ -412,8 +420,9 @@ package how.as2js.compiler
 						ret = new CodeMember(token.lexeme.toString());
 					}
 					break;
-//				case TokenType.RegExp:
-//					break;
+				case TokenType.RegExp:
+					ret = new CodeRegExp(token.lexeme.toString());
+					break;
 				default:
 					throw new ParseError(token,"Object起始关键字错误 ");
 					break;
@@ -896,6 +905,7 @@ package how.as2js.compiler
 					executable.addInstruction(new CodeInstruction(Opcode.CONTINUE, new CodeObject(m_strBreviary,token.sourceLine)));
 					break;
 				case TokenType.Function:
+					UndoToken();
 					ParseFunctionDeclaration(false, false);
 					break;
 				case TokenType.SemiColon:
@@ -1186,15 +1196,45 @@ package how.as2js.compiler
 					var vals:Vector.<CodeObject> = new Vector.<CodeObject>();
 					ParseCase(vals);
 					switchExecutable = new CodeExecutable(CodeExecutable.Block_Switch,executable);
+					var isReadLeftBrace:Boolean = false;
+					if (PeekToken().type == TokenType.LeftBrace)
+					{
+						isReadLeftBrace = true;
+						ReadLeftBrace();
+					}
 					ParseStatementBlock(switchExecutable, false, TokenType.Break);
 					ret.AddCase(new TempCase(vals,switchExecutable));
+					if (PeekToken().type == TokenType.SemiColon)
+					{
+						ReadSemiColon();
+					}
+					if (PeekToken().type == TokenType.RightBrace && isReadLeftBrace)
+					{
+						isReadLeftBrace = false;
+						ReadRightBrace();
+					}
 				} 
 				else if (token.type == TokenType.Default) 
 				{
 					ReadColon();
 					switchExecutable = new CodeExecutable(CodeExecutable.Block_Switch,executable);
+					isReadLeftBrace = false;
+					if (PeekToken().type == TokenType.LeftBrace)
+					{
+						isReadLeftBrace = true;
+						ReadLeftBrace();
+					}
 					ParseStatementBlock(switchExecutable, false, TokenType.Break);
 					ret.def = new TempCase(null,switchExecutable);
+					if (PeekToken().type == TokenType.SemiColon)
+					{
+						ReadSemiColon();
+					}
+					if (PeekToken().type == TokenType.RightBrace && isReadLeftBrace)
+					{
+						isReadLeftBrace = false;
+						ReadRightBrace();
+					}
 				} 
 				else if (token.type != TokenType.SemiColon)
 				{
@@ -1308,6 +1348,10 @@ package how.as2js.compiler
 			else if (member is CodeAssign)
 			{
 				executable.addInstruction(new CodeInstruction(Opcode.RESOLVE, member));
+			}
+			else if (member is CodeOperator)
+			{
+				executable.addInstruction(new CodeInstruction(Opcode.AND_CALL_FUNCTION, member));
 			}
 			else
 			{

@@ -46,5 +46,7 @@ package how.as2js.runtime
 		public static const ISAS:int = 20;
 		//delete
 		public static const DELETE:int = 21;
+		//a && a.a();
+		public static const AND_CALL_FUNCTION:int = 22;
 	}
 }

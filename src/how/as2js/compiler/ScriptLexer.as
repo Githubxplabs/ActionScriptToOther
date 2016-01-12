@@ -90,6 +90,27 @@ package how.as2js.compiler
 			}
 			return ch;
 		}
+		protected function nextOrPrevChar(count:int = 1):String
+		{
+			if (EndOfSource){
+				throw new Error("End of source reached.", m_iSourceLine);
+			}
+			var size:int = Math.abs(count);
+			var offset:int = count > 0 ? 1 : -1;
+			var tempI:int = m_iSourceChar - 1;
+			var tempL:int = m_iSourceLine;
+			for (var i:int = 0; i < size; i++) 
+			{
+				tempI += offset;
+				if (tempI >= m_listSourceLines[tempL].length) 
+				{
+					tempI = 0;
+					tempL += offset;
+				}
+			}
+			var ch:String = m_listSourceLines[tempL].charAt(tempI);
+			return ch;
+		}
 		protected function AddToken(type:int,lexeme:Object = null):void
 		{
 			lexeme = lexeme != null?lexeme:ch;
@@ -178,6 +199,7 @@ package how.as2js.compiler
 						switch (ch)
 						{
 							case ' ':
+							case '　':
 							case '\t':
 							case '\n':
 							case '\r':
@@ -343,12 +365,14 @@ package how.as2js.compiler
 								break;
 							default:
 								//需要检测正则表达式的情况
+								var count:int = 1;
 								var regExpCh:String = "/" + ch;
 								var isRegExp:Boolean = false;
 								for (var i:int = m_iSourceChar; i < m_listSourceLines[m_iSourceLine].length; i++) 
 								{
 									var tempCh:String = m_listSourceLines[m_iSourceLine].charAt(i);
 									regExpCh += tempCh;
+									count++;
 									if (tempCh == "/" && m_listSourceLines[m_iSourceLine].charAt(i - 1) != "\\")
 									{
 										isRegExp = true;
@@ -359,6 +383,7 @@ package how.as2js.compiler
 											if (tempCh == "g" || tempCh == "i" || tempCh == "s" || tempCh == "m" || tempCh == "x")
 											{
 												regExpCh += tempCh;
+												count++;
 											}
 										}
 										
@@ -369,6 +394,10 @@ package how.as2js.compiler
 								if (isRegExp)
 								{
 									AddToken(TokenType.RegExp, regExpCh);
+									for (var j:int = 0; j < count - 1; j++) 
+									{
+										ReadChar();
+									}
 								}
 								else
 								{
@@ -399,10 +428,17 @@ package how.as2js.compiler
 						AddComment();
 						break;
 					case LexState.BlockCommentEnd:
-						if (ch == '/'){
+						if (ch == '/')
+						{
 							lexState = LexState.None;
 						}
-						else{
+						else if (nextOrPrevChar() == "/")
+						{
+							//修复带多个***注释的问题
+							lexState = LexState.BlockCommentEnd;
+						}
+						else
+						{
 							lexState = LexState.BlockCommentStart;
 						}
 						AddComment();

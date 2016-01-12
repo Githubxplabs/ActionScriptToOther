@@ -74,8 +74,15 @@ package how.as2js.codeDom
 				case Opcode.NEW: result += convertNew(tabCount); break;
 				case Opcode.SUPER: result += convertSuper(tabCount); break;
 				case Opcode.DELETE: result += convertDelete(tabCount); break;
+				case Opcode.AND_CALL_FUNCTION: result += convertAndCallFunction(tabCount); break;
+				
 			}
 			return result;
+		}
+		
+		private function convertAndCallFunction(tabCount:int):String
+		{
+			return operand0.out(tabCount);
 		}
 		protected function convertVar(tabCount:int):String
 		{
