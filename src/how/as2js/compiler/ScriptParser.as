@@ -412,6 +412,8 @@ package how.as2js.compiler
 						ret = new CodeMember(token.lexeme.toString());
 					}
 					break;
+//				case TokenType.RegExp:
+//					break;
 				default:
 					throw new ParseError(token,"Object起始关键字错误 ");
 					break;
