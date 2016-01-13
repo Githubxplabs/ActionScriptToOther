@@ -40,6 +40,7 @@ package how.as2js.compiler
 		}
 
 		private var _sourceChar:int;
+		public var index:int;
 		
 		/**
 		 * 所在列

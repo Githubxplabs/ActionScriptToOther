@@ -48,5 +48,9 @@ package how.as2js.runtime
 		public static const DELETE:int = 21;
 		//a && a.a();
 		public static const AND_CALL_FUNCTION:int = 22;
+		//就显示变量，没有任何操作
+		public static const PURE_RESOLVE:int = 23;
+		//局部常量
+		public static const Const:int = 24;
 	}
 }

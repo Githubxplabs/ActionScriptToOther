@@ -204,6 +204,16 @@ package how.as2js.compiler
 		public static var NamespaceColon:int = 91;
 		//RegExp  /<.*?>/g 正则表达式
 		public static var RegExp:int = 92;
+		//use
+		public static var Use:int = 93;
+		//namespace
+		public static var Namespace:int = 94;
+		//typeof
+		public static var TypeOf:int = 95;
+		//~
+		public static var Tilde:int = 96;
+		//Embed
+		public static var Embed:int = 97;
 		
 	}
 }

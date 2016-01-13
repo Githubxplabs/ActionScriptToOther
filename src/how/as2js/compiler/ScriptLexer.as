@@ -146,6 +146,32 @@ package how.as2js.compiler
 				commentStrToken = "";
 			}
 		}
+		
+		/** 检测是否为正则表达式*/
+		private function checkIsRegExp():Boolean
+		{
+			var index:int = -2;
+			while (true)
+			{
+				if (nextOrPrevChar(index) == " ")
+				{
+					index -= 1;
+				}
+				else if (nextOrPrevChar(index) == "=")
+				{
+					return true;				
+				}
+				else if (nextOrPrevChar(index) == "(")
+				{
+					return true;	
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return false;
+		}
 
 		private function ThrowInvalidCharacterException(ch:String):void
 		{
@@ -266,6 +292,9 @@ package how.as2js.compiler
 							case '!':
 								lexState = LexState.NotOrNotEqual;
 								break;
+							case '~':
+								AddToken(TokenType.Tilde, "~");
+								break;
 							case '>':
 								lexState = LexState.GreaterOrGreaterEqual;
 								break;
@@ -310,7 +339,14 @@ package how.as2js.compiler
 					case LexState.PeriodOrParams:
 						if (ch == '.') {
 							lexState = LexState.Params;
-						} else {
+						}
+						else if (Utils.IsDigit(ch))
+						{
+							lexState = LexState.MinusNumber;
+							m_strToken = "." + ch;
+						}
+						else 
+						{
 							AddToken(TokenType.Period, ".");
 							UndoChar();
 						}
@@ -318,8 +354,12 @@ package how.as2js.compiler
 					case LexState.Params:
 						if (ch == '.') {
 							AddToken(TokenType.Params, "...");
-						} else {
-							ThrowInvalidCharacterException(ch);
+						} 
+						else 
+						{
+							AddToken(TokenType.Period, "..");
+							UndoChar();
+//							ThrowInvalidCharacterException(ch);
 						}
 						break;
 					case LexState.PlusOrIncrementOrAssignPlus:
@@ -337,8 +377,28 @@ package how.as2js.compiler
 							AddToken(TokenType.Decrement, "--");
 						} else if (ch == '=') {
 							AddToken(TokenType.AssignMinus, "-=");
-						} else {
+						}
+						else if (ch == "." && Utils.IsDigit(nextOrPrevChar(1)))
+						{
+							//-.5
+							lexState = LexState.MinusNumber;
+							m_strToken = "-.";
+						}
+						else 
+						{
 							AddToken(TokenType.Minus, "-");
+							UndoChar();
+						}
+						break;
+					case LexState.MinusNumber:
+						if (Utils.IsDigit(ch)) 
+						{
+							m_strToken += ch;
+						}
+						else 
+						{
+							value = parseFloat(m_strToken);
+							AddToken(TokenType.Number, value);
 							UndoChar();
 						}
 						break;
@@ -365,29 +425,33 @@ package how.as2js.compiler
 								break;
 							default:
 								//需要检测正则表达式的情况
-								var count:int = 1;
-								var regExpCh:String = "/" + ch;
+								//1.赋值的时候  var regExp:RegExp = /dfsd/g
 								var isRegExp:Boolean = false;
-								for (var i:int = m_iSourceChar; i < m_listSourceLines[m_iSourceLine].length; i++) 
+								if (checkIsRegExp())
 								{
-									var tempCh:String = m_listSourceLines[m_iSourceLine].charAt(i);
-									regExpCh += tempCh;
-									count++;
-									if (tempCh == "/" && m_listSourceLines[m_iSourceLine].charAt(i - 1) != "\\")
+									var count:int = 1;
+									var regExpCh:String = "/" + ch;
+									for (var i:int = m_iSourceChar; i < m_listSourceLines[m_iSourceLine].length; i++) 
 									{
-										isRegExp = true;
-										
-										if (i + 1 < m_listSourceLines[m_iSourceLine].length)
+										var tempCh:String = m_listSourceLines[m_iSourceLine].charAt(i);
+										regExpCh += tempCh;
+										count++;
+										if (tempCh == "/" && m_listSourceLines[m_iSourceLine].charAt(i - 1) != "\\")
 										{
-											tempCh = m_listSourceLines[m_iSourceLine].charAt(i + 1);
-											if (tempCh == "g" || tempCh == "i" || tempCh == "s" || tempCh == "m" || tempCh == "x")
+											isRegExp = true;
+											
+											if (i + 1 < m_listSourceLines[m_iSourceLine].length)
 											{
-												regExpCh += tempCh;
-												count++;
+												tempCh = m_listSourceLines[m_iSourceLine].charAt(i + 1);
+												if (tempCh == "g" || tempCh == "i" || tempCh == "s" || tempCh == "m" || tempCh == "x")
+												{
+													regExpCh += tempCh;
+													count++;
+												}
 											}
+											
+											i = m_listSourceLines[m_iSourceLine].length;
 										}
-										
-										i = m_listSourceLines[m_iSourceLine].length;
 									}
 								}
 								
@@ -422,7 +486,8 @@ package how.as2js.compiler
 						}
 						break;
 					case LexState.BlockCommentStart:
-						if (ch == '*'){
+						//修复带多个***注释的问题
+						if (ch == '*' && nextOrPrevChar() == "/"){
 							lexState = LexState.BlockCommentEnd;
 						}
 						AddComment();
@@ -432,11 +497,6 @@ package how.as2js.compiler
 						{
 							lexState = LexState.None;
 						}
-						else if (nextOrPrevChar() == "/")
-						{
-							//修复带多个***注释的问题
-							lexState = LexState.BlockCommentEnd;
-						}
 						else
 						{
 							lexState = LexState.BlockCommentStart;
@@ -444,10 +504,20 @@ package how.as2js.compiler
 						AddComment();
 						break;
 					case LexState.AssignOrEqual:
-						if (ch == '=') {
-							AddToken(TokenType.Equal, "==");
+						if (ch == '=') 
+						{
+							lexState = LexState.ThreeEqual;
 						} else {
 							AddToken(TokenType.Assign, "=");
+							UndoChar();
+						}
+						break;
+					case LexState.ThreeEqual:
+						if (ch == '=') 
+						{
+							AddToken(TokenType.Equal, "===");
+						} else {
+							AddToken(TokenType.Equal, "==");
 							UndoChar();
 						}
 						break;
@@ -500,9 +570,15 @@ package how.as2js.compiler
 						}
 						break;
 					case LexState.ShrOrAssignShr:
-						if (ch == '=') {
+						if (ch == '=') 
+						{
 							AddToken(TokenType.AssignShr, ">>=");
-						} else {
+						} else if (ch == ">")
+						{
+							AddToken(TokenType.Shr, ">>>");
+						}
+						else
+						{
 							AddToken(TokenType.Shr, ">>");
 							UndoChar();
 						}
@@ -517,9 +593,21 @@ package how.as2js.compiler
 						break;
 					case LexState.NotOrNotEqual:
 						if (ch == '=') {
-							AddToken(TokenType.NotEqual, "!=");
+//							AddToken(TokenType.NotEqual, "!=");
+							lexState = LexState.ThreeNotEquip;
 						} else {
 							AddToken(TokenType.Not, "!");
+							UndoChar();
+						}
+						break;
+					case LexState.ThreeNotEquip:
+						if (ch == "=")
+						{
+							AddToken(TokenType.NotEqual, "!==");
+						}
+						else
+						{
+							AddToken(TokenType.NotEqual, "!=");
 							UndoChar();
 						}
 						break;
@@ -535,7 +623,7 @@ package how.as2js.compiler
 						}
 						break;
 					case LexState.StringEscape:
-						if (ch == '\\' || ch == "\"") {
+						if (ch == '\\' || ch == "\"" || ch == "/" || ch == "'") {
 							m_strToken += ch;
 							lexState = LexState.String;
 						} else if (ch == 't') {
@@ -563,7 +651,7 @@ package how.as2js.compiler
 						}
 						break;
 					case LexState.SingleStringEscape:
-						if (ch == '\\' || ch == '\'') {
+						if (ch == '\\' || ch == '\'' || ch == '/' || ch == '"') {
 							m_strToken += ch;
 							lexState = LexState.SingleString;
 						} else if (ch == 't') {
@@ -585,7 +673,16 @@ package how.as2js.compiler
 						} else if (ch == '\'') {
 							lexState = LexState.SingleSimpleString;
 						} else {
-							ThrowInvalidCharacterException(ch);
+							if (Utils.isAtPropertiesEnd(ch))
+							{
+								AddToken(TokenType.Identifier, "@" + m_strToken);
+								UndoChar();
+							}
+							else
+							{
+								m_strToken += ch;
+							}
+//							ThrowInvalidCharacterException(ch);
 						}
 						break;
 					case LexState.SimpleString:
@@ -804,6 +901,18 @@ package how.as2js.compiler
 								case "delete":
 									tokenType = TokenType.Delete;
 									break;
+								case "use":
+									tokenType = TokenType.Use;
+									break;
+								case "namespace":
+									tokenType = TokenType.Namespace;
+									break;
+								case "typeof":
+									tokenType = TokenType.TypeOf;
+									break;
+								case "Embed":
+									tokenType = TokenType.Embed;
+									break;
 								default:
 									tokenType = TokenType.Identifier;
 									break;
@@ -829,6 +938,11 @@ package how.as2js.compiler
 			m_listTokens.push(new Token(TokenType.Finished, "", m_iSourceLine, m_iSourceChar));
 //			Config.modol = parseInt(getValue("modol"));
 //			Config.bind = getValue("bind") != null && getValue("bind") == "true";
+			for (var k:int = 0; k < m_listTokens.length; k++) 
+			{
+				m_listTokens[k].index = k;
+			}
+			
 			return m_listTokens;
 		}
 	}

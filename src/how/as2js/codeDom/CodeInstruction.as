@@ -56,6 +56,7 @@ package how.as2js.codeDom
 			switch (opcode)
 			{
 				case Opcode.VAR: result += convertVar(tabCount); break;
+				case Opcode.Const: result += convertConst(tabCount); break;
 //				case Opcode.MOV: ProcessMov(); break;
 				case Opcode.RET: result += convertRet(tabCount); break;
 				case Opcode.RESOLVE: result += convertResolve(tabCount); break;
@@ -75,9 +76,15 @@ package how.as2js.codeDom
 				case Opcode.SUPER: result += convertSuper(tabCount); break;
 				case Opcode.DELETE: result += convertDelete(tabCount); break;
 				case Opcode.AND_CALL_FUNCTION: result += convertAndCallFunction(tabCount); break;
+				case Opcode.PURE_RESOLVE: result += converPureResolve(tabCount); break;
 				
 			}
 			return result;
+		}
+		
+		private function converPureResolve(tabCount:int):String
+		{
+			return operand0.out(tabCount);
 		}
 		
 		private function convertAndCallFunction(tabCount:int):String
@@ -104,6 +111,28 @@ package how.as2js.codeDom
 			{
 				_operand0.owner = owner;
 				return getTab(tabCount) + "var "+ name + ":" + _operand0.out(0) + ";\n";
+			}
+		}
+		protected function convertConst(tabCount:int):String
+		{
+			var name:String = value+"";
+			owner.tempData.tempData[name] = null;
+			var nextInstruction:CodeInstruction = owner.instructions[owner.currentIndex+1];
+			if(nextInstruction && nextInstruction._operand0 is CodeAssign && ((nextInstruction._operand0 as CodeAssign).member.memberString == name))
+			{
+				nextInstruction._operand0.owner = owner;
+				owner.currentIndex++;
+				var codeAssign:CodeAssign = nextInstruction._operand0 as CodeAssign;
+//				if (codeAssign.member.memType == null)
+//				{
+//					return getTab(tabCount) + codeAssign.out(0) + ";\n";
+//				}
+				return getTab(tabCount) + "const " + codeAssign.out(0) + ";\n";
+			}
+			else
+			{
+				_operand0.owner = owner;
+				return getTab(tabCount) + "const "+ name + ":" + _operand0.out(0) + ";\n";
 			}
 		}
 		protected function convertResolve(tabCount:int):String

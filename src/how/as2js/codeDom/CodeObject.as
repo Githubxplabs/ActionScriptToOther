@@ -7,6 +7,7 @@ package how.as2js.codeDom
 	{
 		public var not:Boolean;            // ! 标识（非xxx）
 		public var negative:Boolean;       // - 标识（负数）
+		public var tilde:Boolean;			//~ 标识
 		public var stackInfo:StackInfo;     // 堆栈数据
 		public var owner:CodeExecutable;
 		public var insertString:String = "";

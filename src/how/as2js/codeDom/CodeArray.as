@@ -3,6 +3,7 @@ package how.as2js.codeDom
 	public class CodeArray extends CodeObject
 	{
 		public var elements:Vector.<CodeObject> = new Vector.<CodeObject>();
+		public var memberNamespace:CodeObject;
 
 		public function CodeArray()
 		{

@@ -15,7 +15,8 @@ package how.as2js.codeDom
 		public var isConst:Boolean = true;//是否常量
 		public var type:CodeObject;//属性类型
 		public var isOverride:Boolean = false;
-		public function CodeVariable(key:Object,value:CodeObject,modifierType:int,isStatic:Boolean,isConst:Boolean,isOverride:Boolean,type:CodeObject)
+		public var embed:String;
+		public function CodeVariable(key:Object,value:CodeObject,modifierType:int,isStatic:Boolean,isConst:Boolean,isOverride:Boolean,type:CodeObject, embed:String)
 		{
 			this.key = key;
 			this.value = value;
@@ -24,6 +25,7 @@ package how.as2js.codeDom
 			this.isConst = isConst;
 			this.isOverride = isOverride;
 			this.type = type;
+			this.embed = embed;
 		}
 		
 		public function refactorName(source:String, target:String):void

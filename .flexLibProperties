@@ -45,6 +45,9 @@
     <classEntry path="how.as2js.runtime.Runtime"/>
     <classEntry path="how.as2js.codeDom.CodeActionScript"/>
     <classEntry path="how.as2js.codeDom.CodeRegExp"/>
+    <classEntry path="how.as2js.codeDom.CodeUseNamespace"/>
+    <classEntry path="how.as2js.codeDom.CodeObjectBrace"/>
+    <classEntry path="how.as2js.codeDom.CodeEmbed"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

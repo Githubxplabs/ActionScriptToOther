@@ -17,6 +17,7 @@ package how.as2js.codeDom
 		public var calc:int;//前后标识
 		public var memType:CodeObject;
 		public var isStringProperties:Boolean;//是否为xxx[""]的形式
+		public var isTypeOf:Boolean;
 		public function CodeMember(name:String = null,member:CodeObject = null,num:Number = 0,parent:CodeObject = null)
 		{
 			if(name)

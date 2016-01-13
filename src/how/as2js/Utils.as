@@ -113,5 +113,19 @@ package how.as2js
 			}
 			return false;
 		}
+		
+		public static function isAtPropertiesEnd(ch:String):Boolean
+		{
+			if (ch == "\r" || ch == "\n" || ch == ";" || 
+				ch == "=" || ch == ">" || ch == "<" || 
+				ch == "-" || ch == "+" || ch == "*" || 
+				ch == "/" || ch == "%" || ch == "." ||
+				ch == "(" || ch == ")" || ch == "{" || 
+				ch == "}" || ch == "[" || ch == "]")
+			{
+				return true;
+			}
+			return false;
+		}
 	}
 }

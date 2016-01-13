@@ -70,5 +70,14 @@ package how.as2js.compiler
 		public static const Identifier:int = 32;
 		//命名空间
 		public static const Namespace:int = 33;
+		//=== 全等于
+		public static const ThreeEqual:int = 34;
+		//>>>
+		public static const ThreeGreater:int = 35;
+		//!==
+		public static const ThreeNotEquip:int = 36;
+		//负数，并且是小数点
+		public static const MinusNumber:int = 37;
+		
 	}
 }

@@ -17,7 +17,10 @@ package how.as2js.codeDom
 		public var packAge:String;//包名
 		public var isDynamic:Boolean;//是否是动态类
 		public var isFinal:Boolean;//是否是终级类
+		public var isInterface:Boolean;//是否为接口类
 		public var imports:Vector.<String> = new Vector.<String>();//导入列表
+		public var namespaces:Vector.<String> = new Vector.<String>();//命名空间列表
+		public var eventEmbed:Vector.<String> = new Vector.<String>();//Event[]标签
 		public var variables:Vector.<CodeVariable> = new Vector.<CodeVariable>();
 		public var functions:Vector.<CodeFunction> = new Vector.<CodeFunction>();							//父指令
 		public var tempData:TempData = new TempData();
