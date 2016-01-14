@@ -913,6 +913,9 @@ package how.as2js.compiler
 								case "Embed":
 									tokenType = TokenType.Embed;
 									break;
+								case "inline":
+									tokenType = TokenType.Inline;
+									break;
 								default:
 									tokenType = TokenType.Identifier;
 									break;

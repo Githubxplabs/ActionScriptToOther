@@ -22,7 +22,8 @@ package how.as2js.codeDom
 		public var returnType:CodeMember;//返回类选
 		public var modifierType:int;//修饰符
 		public var isOverride:Boolean;//是否覆盖的方法
-		public function CodeFunction(strName:String,listParameters:Vector.<String>,listParameterTypes:Vector.<CodeMember>,listValues:Vector.<CodeObject>,executable:CodeExecutable,bParams:Boolean,IsStatic:Boolean,type:int,returnType:CodeMember, modifierType:int, isOverride:Boolean)
+		public var isFinal:Boolean;
+		public function CodeFunction(strName:String,listParameters:Vector.<String>,listParameterTypes:Vector.<CodeMember>,listValues:Vector.<CodeObject>,executable:CodeExecutable,bParams:Boolean,IsStatic:Boolean,type:int,returnType:CodeMember, modifierType:int, isOverride:Boolean, isFinal:Boolean)
 		{
 			this.name = strName;
 			this.type = type;
@@ -36,6 +37,7 @@ package how.as2js.codeDom
 			this.returnType = returnType;
 			this.modifierType = modifierType;
 			this.isOverride = isOverride;
+			this.isFinal = isFinal;
 		}
 		
 		override public function refactorName(source:String, target:String):void

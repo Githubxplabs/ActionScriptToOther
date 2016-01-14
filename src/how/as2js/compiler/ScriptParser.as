@@ -99,6 +99,10 @@ package how.as2js.compiler
 			{
 				codeClass.isFinal = GetFinal();//终级类
 				codeClass.isDynamic = GetDynamic();//动态类
+				if (PeekToken().type == TokenType.Public||PeekToken().type == TokenType.Private||PeekToken().type == TokenType.Protected||PeekToken().type == TokenType.Internal)
+				{
+					codeClass.modifierType = ReadToken().type;//修饰符
+				}
 				if (PeekToken().type == TokenType.Interface)
 				{
 					codeClass.isInterface = true;
@@ -307,7 +311,9 @@ package how.as2js.compiler
 				var isConst:Boolean = false;//是否常量
 				var isOverride:Boolean = false;
 				var type:CodeObject = null;//属性类型
-				var embed:String = null;
+				var embed:String = null;//内嵌Embed
+				var isInline:Boolean = false;//inline
+				var isFinal:Boolean = false;//final
 				if (token.type == TokenType.LeftBracket && PeekToken().type == TokenType.Embed)
 				{
 					UndoToken();
@@ -315,6 +321,19 @@ package how.as2js.compiler
 					token = ReadToken();
 				}
 				
+				if (token.type == TokenType.LeftBracket && PeekToken().type == TokenType.Inline)
+				{
+					isInline = true;
+					ReadToken();
+					ReadToken();
+					token = ReadToken();
+				}
+				
+				if (token.type == TokenType.Final)
+				{
+					isFinal = true;
+					token = ReadToken();
+				}
 				if(token.type == TokenType.Static)
 				{
 					isStatic = true;
@@ -402,7 +421,7 @@ package how.as2js.compiler
 				else if(token.type == TokenType.Function)
 				{
 					UndoToken();
-					codeClass.functions.push(ParseFunctionDeclaration(isStatic, isOverride));
+					codeClass.functions.push(ParseFunctionDeclaration(isStatic, isOverride, isFinal));
 				} 
 				else
 				{
@@ -490,9 +509,18 @@ package how.as2js.compiler
 							ReadToken();//.
 							if (PeekToken().type == TokenType.Less)
 							{
-								ReadToken();//>
-								//ReadToken();//type
-								var param:CodeObject = GetObject();
+								//1.Vector.<int>
+								//2.Vector.<Vector.<int>>
+								ReadToken();//<
+								var param:CodeObject = new CodeMember(ReadToken().lexeme.toString());
+								if (PeekToken().type == TokenType.Period)
+								{
+									ReadToken();//.
+									ReadToken();//<
+									var param2:CodeObject = new CodeMember(ReadToken().lexeme.toString());
+									//ReadToken();//>  不需要位移，因为解析的时候已经解析成>>
+									(param as CodeMember).memberSub = param2 as CodeMember;
+								}
 								ReadToken();//>
 							}
 							else
@@ -522,7 +550,7 @@ package how.as2js.compiler
 					break;
 				case TokenType.Function:
 					UndoToken();
-					ret = ParseFunctionDeclaration(false, false);
+					ret = ParseFunctionDeclaration(false, false, false);
 					break;
 				case TokenType.LeftPar:
 					ret = GetObject();
@@ -903,7 +931,7 @@ package how.as2js.compiler
 			return true;
 		}
 		//解析成员函数（返回一个函数）
-		private function ParseFunctionDeclaration(isStatic:Boolean, isOverride:Boolean):CodeFunction
+		private function ParseFunctionDeclaration(isStatic:Boolean, isOverride:Boolean, isFinal:Boolean):CodeFunction
 		{
 			var token:Token = ReadToken();
 			if (token.type != TokenType.Function)
@@ -1042,7 +1070,7 @@ package how.as2js.compiler
 			{
 				ParseStatementBlock(executable);
 			}
-			return new CodeFunction(strFunctionName,listParameters,listParameterTypes,listValues,executable,bParams,isStatic,scriptFunctionType, returnType, modifierType, isOverride);
+			return new CodeFunction(strFunctionName,listParameters,listParameterTypes,listValues,executable,bParams,isStatic,scriptFunctionType, returnType, modifierType, isOverride, isFinal);
 		}		
 		//解析区域代码内容( {} 之间的内容)
 		private function ParseStatementBlock(executable:CodeExecutable,readLeftBrace:Boolean = true,finished:int = 4):void
@@ -1146,7 +1174,7 @@ package how.as2js.compiler
 					break;
 				case TokenType.Function:
 					UndoToken();
-					ParseFunctionDeclaration(false, false);
+					ParseFunctionDeclaration(false, false, false);
 					break;
 				case TokenType.SemiColon:
 					break;
@@ -1662,7 +1690,7 @@ package how.as2js.compiler
 			} 
 			else if (member is CodeMember) 
 			{
-				if (PeekToken().type == TokenType.SemiColon)
+				if (PeekToken().type == TokenType.SemiColon || PeekToken().type == TokenType.RightBrace || PeekToken().type == TokenType.Identifier)
 				{
 					executable.addInstruction(new CodeInstruction(Opcode.PURE_RESOLVE, member));
 				}
