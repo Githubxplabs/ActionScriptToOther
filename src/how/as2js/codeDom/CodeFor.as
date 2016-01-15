@@ -7,6 +7,7 @@ package how.as2js.codeDom
 		public var condition:CodeObject;                        //跳出条件
 		public var loopExecutable:CodeExecutable;             //循环执行
 		public var blockExecutable:CodeExecutable;            //for内容
+		public var name:String;
 		public function CodeFor()
 		{
 			

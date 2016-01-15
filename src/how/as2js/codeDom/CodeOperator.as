@@ -22,6 +22,7 @@ package how.as2js.codeDom
 				_operators[TokenType.Shr] = ">>";
 				_operators[TokenType.And] = "&&";
 				_operators[TokenType.Or] = "||";
+				_operators[TokenType.OrEquip] = "||=";
 				
 				_operators[TokenType.Equal] = "==";
 				_operators[TokenType.NotEqual] = "!=";
@@ -48,7 +49,7 @@ package how.as2js.codeDom
 		override public function out(tabCount:int):String
 		{
 			left.owner = right.owner = owner;
-			return left.out(tabCount) + " "+operators[operator]+" " + right.out(tabCount);
+			return "(" + left.out(tabCount) + " "+operators[operator]+" " + right.out(tabCount) + ")";
 		}
 	}
 }

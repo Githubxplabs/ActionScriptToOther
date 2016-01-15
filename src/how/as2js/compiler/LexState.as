@@ -78,6 +78,8 @@ package how.as2js.compiler
 		public static const ThreeNotEquip:int = 36;
 		//负数，并且是小数点
 		public static const MinusNumber:int = 37;
+		//||=
+		public static var OrEquip:int = 38;
 		
 	}
 }

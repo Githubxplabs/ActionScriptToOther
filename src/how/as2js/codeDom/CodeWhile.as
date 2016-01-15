@@ -5,6 +5,7 @@ package how.as2js.codeDom
 	public class CodeWhile extends CodeObject
 	{
 		public var While:TempCondition;
+		public var name:String;
 		public function CodeWhile()
 		{
 			

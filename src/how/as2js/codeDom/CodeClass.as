@@ -13,6 +13,7 @@ package how.as2js.codeDom
 		public var modifierType:int;//修饰符
 		public var name:String;//类名
 		public var parent:String;//父类
+		public var parents:Vector.<String>;//父类
 		public var impls:Vector.<String> = new Vector.<String>();
 		public var packAge:String;//包名
 		public var isDynamic:Boolean;//是否是动态类
@@ -200,7 +201,7 @@ package how.as2js.codeDom
 			tempData.thisTempData = new Dictionary();
 			tempData.staticTempData = new Dictionary();
 			tempData.importTempData = new Dictionary();
-			tempData.staticTempData[".this"] = packAge+(packAge.length?".":"")+name;
+//			tempData.staticTempData[".this"] = packAge+(packAge.length?".":"")+name;
 			for (var i:int = 0; i < variables.length; i++) 
 			{
 				if(!variables[i].isStatic)

@@ -19,11 +19,11 @@ package how.as2js.codeDom
 			rightObject.owner = owner;
 			if(type == TokenType.Is)
 			{
-				return leftObject.out(0) + " instanceof " + rightObject.out(0);
+				return leftObject.out(0) + " is " + rightObject.out(0);
 			}
 			else
 			{
-				return "("+leftObject.out(0) + " instanceof " + rightObject.out(0)+")?"+leftObject.out(0)+":null)";
+				return leftObject.out(0) + " as " + rightObject.out(0);
 			}
 		}
 	}

@@ -216,6 +216,8 @@ package how.as2js.compiler
 		public static var Embed:int = 97;
 		//inline
 		public static var Inline:int = 98;
+		//||=
+		public static var OrEquip:int = 99;	
 		
 	}
 }

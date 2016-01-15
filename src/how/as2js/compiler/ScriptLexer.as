@@ -533,11 +533,23 @@ package how.as2js.compiler
 						break;
 					case LexState.OrOrInclusiveOr:
 						if (ch == '|') {
-							AddToken(TokenType.Or, "||");
+//							AddToken(TokenType.Or, "||");
+							lexState = LexState.OrEquip;
 						} else if (ch == '=') {
 							AddToken(TokenType.AssignInclusiveOr, "|=");
 						} else {
 							AddToken(TokenType.InclusiveOr, "|");
+							UndoChar();
+						}
+						break;
+					case LexState.OrEquip:
+						if (ch == "=")
+						{
+							AddToken(TokenType.OrEquip, "||=");
+						}
+						else
+						{
+							AddToken(TokenType.Or, "||");
 							UndoChar();
 						}
 						break;

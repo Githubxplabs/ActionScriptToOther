@@ -11,6 +11,7 @@ package how.as2js.codeDom
 		public var step:CodeObject;
 		public var blockExecutable:CodeExecutable;            //for内容
 		public var variables:Dictionary;  //变量
+		public var name:String;
 		public function CodeForSimple()
 		{
 			variables = new Dictionary();

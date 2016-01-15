@@ -48,6 +48,7 @@
     <classEntry path="how.as2js.codeDom.CodeUseNamespace"/>
     <classEntry path="how.as2js.codeDom.CodeObjectBrace"/>
     <classEntry path="how.as2js.codeDom.CodeEmbed"/>
+    <classEntry path="how.as2js.codeDom.CodeConditionalCompilation"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

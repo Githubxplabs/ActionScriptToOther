@@ -77,19 +77,25 @@ package how.as2js.codeDom
 				case Opcode.DELETE: result += convertDelete(tabCount); break;
 				case Opcode.AND_CALL_FUNCTION: result += convertAndCallFunction(tabCount); break;
 				case Opcode.PURE_RESOLVE: result += converPureResolve(tabCount); break;
+				case Opcode.Conditional_Compilation: result += converConditionalCompilation(tabCount); break;
 				
 			}
 			return result;
 		}
 		
+		private function converConditionalCompilation(tabCount:int):String
+		{
+			return getTab(tabCount) + operand0.out(tabCount) + ";\n";
+		}
+		
 		private function converPureResolve(tabCount:int):String
 		{
-			return operand0.out(tabCount);
+			return getTab(tabCount) + operand0.out(tabCount) + ";\n";
 		}
 		
 		private function convertAndCallFunction(tabCount:int):String
 		{
-			return operand0.out(tabCount);
+			return getTab(tabCount) + operand0.out(tabCount) + ";\n";
 		}
 		protected function convertVar(tabCount:int):String
 		{

@@ -7,6 +7,7 @@ package how.as2js.codeDom
 		public var identifier:CodeObject;
 		public var loopObject:CodeObject;
 		public var executable:CodeExecutable;
+		public var name:String;
 		public function CodeForin()
 		{
 			

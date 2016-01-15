@@ -20,6 +20,7 @@ package how.as2js.codeDom.temp
 				_operators[TokenType.Shr] = new TempOperator(TokenType.Shr, 1);
 				_operators[TokenType.And] = new TempOperator(TokenType.And, 1);
 				_operators[TokenType.Or] = new TempOperator(TokenType.Or, 1);
+				_operators[TokenType.OrEquip] = new TempOperator(TokenType.OrEquip, 1);
 				
 				_operators[TokenType.Equal] = new TempOperator(TokenType.Equal, 2);
 				_operators[TokenType.NotEqual] = new TempOperator(TokenType.NotEqual, 2);

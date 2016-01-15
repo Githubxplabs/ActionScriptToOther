@@ -121,8 +121,12 @@ package how.as2js.codeDom
 			for (var j:int = 0; j < listParameters.length; j++) 
 			{
 				tempParamsString += listParameters[j];
-				tempParamsString += ":";
-				tempParamsString += listParameterTypes[j].memberString;
+				
+				if (listParameterTypes[j] != null)
+				{
+					tempParamsString += ":";
+					tempParamsString += listParameterTypes[j].memberString;
+				}
 				if (listValues[j] != null)
 				{
 					tempParamsString += " = " + listValues[j].out(0);

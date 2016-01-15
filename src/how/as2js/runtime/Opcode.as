@@ -52,5 +52,7 @@ package how.as2js.runtime
 		public static const PURE_RESOLVE:int = 23;
 		//局部常量
 		public static const Const:int = 24;
+		//条件编译
+		public static const Conditional_Compilation:int = 25;
 	}
 }
